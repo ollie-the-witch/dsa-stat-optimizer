@@ -1,60 +1,38 @@
 package org.olivia.test.project.inputs;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import java.util.List;
 
-public class CharacterStatInput {
-
-    int characterSheetAttack = 3757;
-    int physicalAdditionalAttackPower = 0;
-    int elementalAdditionalAttackPower = 425;
-    double existingStatusAttackPowerUp = 0;
-
-    double physicalAdditionalDamageBonus = 15;
-    double elementalAdditionalDamageBonus = 35;
-
-    List<AttackPowerUpSources> attackPowerUpSources = List.of(new AttackPowerUpSources("title", 11.6), new AttackPowerUpSources("karma", 15));
-    List<CriticalRateSources> criticalRateSources = List.of(new CriticalRateSources("character sheet", 32), new CriticalRateSources("awakening", 10));
-    List<CriticalDamageSources> criticalDamageSources = List.of(new CriticalDamageSources("character sheet", 82.3));
-
-    public CharacterStatInput(int characterSheetAttack, int physicalAdditionalAttackPower, int elementalAdditionalAttackPower, double existingStatusAttackPowerUp, double physicalAdditionalDamageBonus, double elementalAdditionalDamageBonus, List<AttackPowerUpSources> attackPowerUpSources, List<CriticalRateSources> criticalRateSources, List<CriticalDamageSources> criticalDamageSources) {
-        this.characterSheetAttack = characterSheetAttack;
-        this.physicalAdditionalAttackPower = physicalAdditionalAttackPower;
-        this.elementalAdditionalAttackPower = elementalAdditionalAttackPower;
-        this.existingStatusAttackPowerUp = existingStatusAttackPowerUp;
-        this.physicalAdditionalDamageBonus = physicalAdditionalDamageBonus;
-        this.elementalAdditionalDamageBonus = elementalAdditionalDamageBonus;
-        this.attackPowerUpSources = attackPowerUpSources;
-        this.criticalRateSources = criticalRateSources;
-        this.criticalDamageSources = criticalDamageSources;
+public record CharacterStatInput(int characterSheetAttack, StatusAttackPower statusAttackPower, AdditionalDamageBonus additionalDamageBonus,
+                                 List<AttackPowerUpSources> attackPowerUpSources, List<CriticalRateSources> criticalRateSources,
+                                 List<CriticalDamageSources> criticalDamageSources) {
+    public double sumAttackPowerUp() {
+        return CollectionUtils.isNotEmpty(attackPowerUpSources) ? attackPowerUpSources.stream().map(AttackPowerUpSources::percent).mapToDouble(f -> f).sum() : 0d;
     }
 
-    public static class AttackPowerUpSources {
-        String source;
-        double percent;
-
-        public AttackPowerUpSources(String source, double percent) {
-            this.source = source;
-            this.percent = percent;
-        }
+    public double sumCriticalRate() {
+        return CollectionUtils.isNotEmpty(criticalRateSources) ? criticalRateSources.stream().map(CriticalRateSources::percent).mapToDouble(f -> f).sum() : 0d;
     }
 
-    public static class CriticalRateSources {
-        String source;
-        double percent;
-
-        public CriticalRateSources(String source, double percent) {
-            this.source = source;
-            this.percent = percent;
-        }
+    public double sumCriticalDamage() {
+        return CollectionUtils.isNotEmpty(criticalDamageSources) ? criticalDamageSources.stream().map(CriticalDamageSources::percent).mapToDouble(f -> f).sum() : 0d;
     }
 
-    public static class CriticalDamageSources {
-        String source;
-        double percent;
+    public record AdditionalDamageBonus(double physicalAdditionalDamageBonus, double elementalAdditionalDamageBonus) {
 
-        public CriticalDamageSources(String source, double percent) {
-            this.source = source;
-            this.percent = percent;
-        }
+    }
+
+    public record StatusAttackPower(int physicalAdditionalAttackPower, int elementalAdditionalAttackPower, double existingStatusAttackPowerUp) {
+
+    }
+
+    public record AttackPowerUpSources(String source, double percent) {
+    }
+
+    public record CriticalRateSources(String source, double percent) {
+    }
+
+    public record CriticalDamageSources(String source, double percent) {
     }
 }

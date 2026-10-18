@@ -1,10 +1,11 @@
-package org.olivia.test.project;
+package org.olivia.test.project.service;
 
 import com.google.ortools.Loader;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverStatus;
 import com.google.ortools.sat.IntVar;
+
 public class OptimizerService {
 
 
@@ -33,7 +34,7 @@ public class OptimizerService {
         }
     }
 
-    private void buildModel(){
+    private void buildModel() {
 
     }
 }
