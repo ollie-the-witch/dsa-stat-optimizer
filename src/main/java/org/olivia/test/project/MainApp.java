@@ -1,6 +1,6 @@
 package org.olivia.test.project;
 
-public class Main {
+public class MainApp {
     public static void main(String[] args) {
         System.out.println("Hello world!");
     }

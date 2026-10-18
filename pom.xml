@@ -21,6 +21,13 @@
             <version>3.16.0</version>
             <scope>compile</scope>
         </dependency>
+        <!-- Source: https://mvnrepository.com/artifact/com.google.ortools/ortools-java -->
+        <dependency>
+            <groupId>com.google.ortools</groupId>
+            <artifactId>ortools-java</artifactId>
+            <version>9.15.6755</version>
+            <scope>compile</scope>
+        </dependency>
 
     </dependencies>
 
