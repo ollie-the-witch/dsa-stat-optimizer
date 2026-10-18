@@ -8,7 +8,7 @@ import com.google.ortools.sat.IntVar;
 public class OptimizerService {
 
 
-    public static void testSolver() {
+    public static void solveOptimizationProblem() {
 
         Loader.loadNativeLibraries();
         CpModel model = new CpModel();
@@ -31,5 +31,9 @@ public class OptimizerService {
         } else {
             System.out.println("No solution found.");
         }
+    }
+
+    private void buildModel(){
+
     }
 }
