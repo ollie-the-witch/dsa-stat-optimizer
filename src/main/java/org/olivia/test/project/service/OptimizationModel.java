@@ -12,6 +12,9 @@ import org.olivia.test.project.config.enumerations.StatVariableName;
 import java.util.EnumMap;
 import java.util.Map;
 
+/**
+ * Class to set, for the optimizer, variables, constraints, and sets the final objective to work towards
+ */
 public class OptimizationModel {
 
     private static Map<StatVariableName, BoolVar> createSelectionVariables(CpModel model,
@@ -235,16 +238,6 @@ public class OptimizationModel {
     public record OptimizationModelBundle(CpModel model, Map<EquipmentSlots, Map<StatVariableName, BoolVar>> mainStatChoicesBySlot,
                                           Map<EquipmentSlots, Map<StatVariableName, BoolVar>> substatChoicesBySlot, Map<StatVariableName, IntVar> runeCountsByStat,
                                           Map<StatVariableName, IntVar> finalStats, IntVar objective, Map<StatVariableName, StatBoundsCalculator.StatBounds> statBounds) {
-    }
-
-    /**
-     * Record for passing information about damage uptime
-     *
-     * @param scale
-     * @param physicalStatusUptime
-     * @param elementalStatusUptime
-     */
-    public record StatusUptimeParameters(int scale, double physicalStatusUptime, double elementalStatusUptime) {
     }
 
 

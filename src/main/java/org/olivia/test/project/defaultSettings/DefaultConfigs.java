@@ -42,7 +42,7 @@ public class DefaultConfigs {
         UserInputs userInputs = DefaultUserInput.createSampleInput();
 
         OptimizationConfigurations configurations = new OptimizationConfigurations();
-        int scale = configurations.getScale();
+        int scale = OptimizationConfigurations.getScale();
 
         CharacterStatInput characterStatInput = userInputs.characterStatInput();
         int totalAttack = characterStatInput.characterSheetAttack();
