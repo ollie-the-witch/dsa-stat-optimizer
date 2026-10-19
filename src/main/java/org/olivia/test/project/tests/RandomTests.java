@@ -6,11 +6,10 @@ import org.olivia.test.project.config.StatIncreases;
 import org.olivia.test.project.config.StatLimitConfiguration;
 import org.olivia.test.project.defaultSettings.DefaultConfigs;
 import org.olivia.test.project.service.OptimizationModel;
-import org.olivia.test.project.service.StatBoundsCalculator;
 
 public class RandomTests {
 
-    public void runSmokeTest(){
+    public void runSmokeTest() {
 
         StatIncreases defaultStatIncrease = DefaultConfigs.defaultStatIncreases();
         BaseStats defaultBaseStats = DefaultConfigs.defaultBaseStats();

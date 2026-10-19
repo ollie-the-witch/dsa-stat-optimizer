@@ -58,12 +58,12 @@ public class DefaultConfigs {
 
         Map<StatVariableName, Integer> baseStatsMap = new HashMap<>();
         baseStatsMap.put(StatVariableName.ATTACK, baseAttack);
-        baseStatsMap.put(StatVariableName.ATTACK_POWER_UP, (int) (totalAttackUp/100 * scale));
-        baseStatsMap.put(StatVariableName.CRITICAL_RATE, (int) (totalCriticalRate/100 * scale));
-        baseStatsMap.put(StatVariableName.CRITICAL_DAMAGE, (int) (totalCriticalDamage/100 * scale));
+        baseStatsMap.put(StatVariableName.ATTACK_POWER_UP, (int) (totalAttackUp / 100 * scale));
+        baseStatsMap.put(StatVariableName.CRITICAL_RATE, (int) (totalCriticalRate / 100 * scale));
+        baseStatsMap.put(StatVariableName.CRITICAL_DAMAGE, (int) (totalCriticalDamage / 100 * scale));
         baseStatsMap.put(StatVariableName.PHYSICAL_ATTACK, physicalAdditionalAttackPower);
         baseStatsMap.put(StatVariableName.ELEMENTAL_ATTACK, elementalAdditionalAttackPower);
-        baseStatsMap.put(StatVariableName.STATUS_ATTACK_POWER_UP, (int) (existingStatusAttackPowerUp/100 * scale));
+        baseStatsMap.put(StatVariableName.STATUS_ATTACK_POWER_UP, (int) (existingStatusAttackPowerUp / 100 * scale));
 
         BaseStats baseStats = new BaseStats(baseStatsMap);
         System.out.println("defaultBaseStats(): " + baseStats);
@@ -81,17 +81,11 @@ public class DefaultConfigs {
     }
 
     public static StatLimitConfiguration defaultStatBoundsConfiguration() {
-        Map<StatVariableName, Integer> statCaps = Map.of(
-                StatVariableName.CRITICAL_RATE, 10000
-        );
+        Map<StatVariableName, Integer> statCaps = Map.of(StatVariableName.CRITICAL_RATE, 10000);
 
-        Map<StatVariableName, Integer> statLowerBounds = Map.of(
-                StatVariableName.CRITICAL_RATE, 5000
-        );
+        Map<StatVariableName, Integer> statLowerBounds = Map.of(StatVariableName.CRITICAL_RATE, 5000);
 
-        Map<StatVariableName, Integer> statUpperBounds = Map.of(
-                StatVariableName.CRITICAL_RATE, 9500
-        );
+        Map<StatVariableName, Integer> statUpperBounds = Map.of(StatVariableName.CRITICAL_RATE, 9500);
 
         StatLimitConfiguration statLimitConfiguration = new StatLimitConfiguration(statCaps, statLowerBounds, statUpperBounds);
 
@@ -103,8 +97,7 @@ public class DefaultConfigs {
         private static CharacterStatInput getCharacterStatInput() {
 
             List<CharacterStatInput.AttackPowerUpSources> attackPowerUpSourcesList = List.of(new CharacterStatInput.AttackPowerUpSources("title", 11.6, true),
-                    new CharacterStatInput.AttackPowerUpSources("karma", 15, true),
-                    new CharacterStatInput.AttackPowerUpSources("battle will", 300, false));
+                    new CharacterStatInput.AttackPowerUpSources("karma", 15, true), new CharacterStatInput.AttackPowerUpSources("battle will", 300, false));
             List<CharacterStatInput.CriticalRateSources> criticalRateSourcesList = List.of(new CharacterStatInput.CriticalRateSources("character sheet", 32),
                     new CharacterStatInput.CriticalRateSources("awakening", 10));
             List<CharacterStatInput.CriticalDamageSources> criticalDamageSourcesList = List.of(new CharacterStatInput.CriticalDamageSources("character sheet", 82.3));

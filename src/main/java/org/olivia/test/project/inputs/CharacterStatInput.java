@@ -8,7 +8,8 @@ public record CharacterStatInput(int characterSheetAttack, StatusAttackPower sta
                                  List<AttackPowerUpSources> attackPowerUpSources, List<CriticalRateSources> criticalRateSources,
                                  List<CriticalDamageSources> criticalDamageSources) {
     public double sumOptimizationAttackPowerUp() {
-        return CollectionUtils.isNotEmpty(attackPowerUpSources) ? attackPowerUpSources.stream().filter(AttackPowerUpSources::optimizationFactor).map(AttackPowerUpSources::percent).mapToDouble(f -> f).sum() : 0d;
+        return CollectionUtils.isNotEmpty(attackPowerUpSources) ?
+                attackPowerUpSources.stream().filter(AttackPowerUpSources::optimizationFactor).map(AttackPowerUpSources::percent).mapToDouble(f -> f).sum() : 0d;
     }
 
     public double sumAttackPowerUp() {

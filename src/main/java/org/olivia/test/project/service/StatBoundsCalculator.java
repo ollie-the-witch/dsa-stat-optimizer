@@ -12,8 +12,8 @@ import java.util.Map;
 public class StatBoundsCalculator {
 
     public static Map<StatVariableName, StatBounds> calculateStatBounds(BaseStats baseStats,
-                                                                        StatIncreases statIncreases,
-                                                                        StatLimitConfiguration statLimitConfiguration) {
+            StatIncreases statIncreases,
+            StatLimitConfiguration statLimitConfiguration) {
         Map<StatVariableName, StatBounds> bounds = new HashMap<>();
 
         int slotCount = EquipmentSlots.values().length;

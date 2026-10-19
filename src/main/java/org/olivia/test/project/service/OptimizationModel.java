@@ -31,7 +31,7 @@ public class OptimizationModel {
     /**
      * Creates the potential choices for each of the slots
      *
-     * @param model model to modify
+     * @param model          model to modify
      * @param variablePrefix string to differentiate between different kinds of stats for different (stat) categories
      * @param availableStats stats available to equipment of this (stat) category, derived from StatIncreases
      * @return the choices
@@ -63,7 +63,8 @@ public class OptimizationModel {
 
     /**
      * Adds a constraint to the model that enforces a number of selections for mainstat, substat
-     * @param model model :)
+     *
+     * @param model         model :)
      * @param choicesBySlot the choices model created prior for category (main/sub)
      * @param requiredCount how many choices of stats for this equipment slot (and category, implicitly via choiceBySlot)
      */
@@ -88,6 +89,7 @@ public class OptimizationModel {
      * - Constraints
      * - Envelope
      * - Bounds
+     *
      * @param baseStats
      * @param statIncreases
      * @param statLimitConfiguration
@@ -133,6 +135,7 @@ public class OptimizationModel {
 
     /**
      * Record for passing information about damage uptime
+     *
      * @param scale
      * @param physicalStatusUptime
      * @param elementalStatusUptime
