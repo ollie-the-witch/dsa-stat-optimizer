@@ -9,6 +9,8 @@ import org.olivia.test.project.config.enumerations.StatVariableName;
 import java.util.Map;
 
 import static org.olivia.test.project.config.enumerations.StatVariableName.*;
+import static org.olivia.test.project.service.OptimizationObjective.LongBounds.*;
+import static org.olivia.test.project.service.OptimizationObjective.ProductTerm.addExactProduct;
 
 public class OptimizationObjective {
 
@@ -48,13 +50,13 @@ public class OptimizationObjective {
         Operations will exceed Integer maxes so convert to longs first
          */
 
-        LongBounds xBounds = LongBounds.asLongBounds(bounds.get(ATTACK));
-        LongBounds wBounds = LongBounds.asLongBounds(bounds.get(ATTACK_POWER_UP));
-        LongBounds yBounds = LongBounds.asLongBounds(bounds.get(CRITICAL_RATE));
-        LongBounds zBounds = LongBounds.asLongBounds(bounds.get(CRITICAL_DAMAGE));
-        LongBounds uBounds = LongBounds.asLongBounds(bounds.get(PHYSICAL_ATTACK));
-        LongBounds vBounds = LongBounds.asLongBounds(bounds.get(ELEMENTAL_ATTACK));
-        LongBounds tBounds = LongBounds.asLongBounds(bounds.get(STATUS_ATTACK_POWER_UP));
+        LongBounds xBounds = asLongBounds(bounds.get(ATTACK));
+        LongBounds wBounds = asLongBounds(bounds.get(ATTACK_POWER_UP));
+        LongBounds yBounds = asLongBounds(bounds.get(CRITICAL_RATE));
+        LongBounds zBounds = asLongBounds(bounds.get(CRITICAL_DAMAGE));
+        LongBounds uBounds = asLongBounds(bounds.get(PHYSICAL_ATTACK));
+        LongBounds vBounds = asLongBounds(bounds.get(ELEMENTAL_ATTACK));
+        LongBounds tBounds = asLongBounds(bounds.get(STATUS_ATTACK_POWER_UP));
 
         long scale = parameters.scale();
         long physicalUptime = Math.round(parameters.physicalStatusUptime() * UPTIME_SCALE);
@@ -67,10 +69,10 @@ public class OptimizationObjective {
         /*
         Attack * Attack Power
          */
-        LongBounds wFactorBounds = LongBounds.shiftPercentPositive(wBounds, scale);
+        LongBounds wFactorBounds = shiftPercentPositive(wBounds, scale);
         IntVar wFactor = model.newIntVar(wFactorBounds.lower(), wFactorBounds.upper(), "one_plus_w_scaled");
         model.addEquality(wFactor, LinearExpr.newBuilder().add(stats.get(ATTACK_POWER_UP)).add(scale).build());
-        ProductTerm attackProduct = ProductTerm.addExactProduct(model, "attack_times_one_plus_w", stats.get(ATTACK), xBounds, wFactor, wFactorBounds);
+        ProductTerm attackProduct = addExactProduct(model, "attack_times_one_plus_w", stats.get(ATTACK), xBounds, wFactor, wFactorBounds);
 
 
         /*
@@ -78,20 +80,20 @@ public class OptimizationObjective {
         Status Attack * Status Attack Power Up
         Adding Bounds to Status component (divide by uptime scale to remove the effects of scaling up uptime earlier)
          */
-        LongBounds physicalWeightedBounds = LongBounds.productBounds(uBounds, new LongBounds(physicalUptime, physicalUptime));
-        LongBounds elementalWeightedBounds = LongBounds.productBounds(vBounds, new LongBounds(elementalUptime, elementalUptime));
-        LongBounds weightedBounds = LongBounds.sum(physicalWeightedBounds, elementalWeightedBounds);
+        LongBounds physicalWeightedBounds = productBounds(uBounds, new LongBounds(physicalUptime, physicalUptime));
+        LongBounds elementalWeightedBounds = productBounds(vBounds, new LongBounds(elementalUptime, elementalUptime));
+        LongBounds weightedBounds = sum(physicalWeightedBounds, elementalWeightedBounds);
 
         IntVar weightedStatuses = model.newIntVar(weightedBounds.lower(), weightedBounds.upper(), "uptime_weighted_status_attack");
         model.addEquality(weightedStatuses,
                 LinearExpr.newBuilder().addTerm(stats.get(PHYSICAL_ATTACK), physicalUptime).addTerm(stats.get(ELEMENTAL_ATTACK), elementalUptime).build());
 
-        LongBounds tFactorBounds = LongBounds.shiftPercentPositive(tBounds, scale);
+        LongBounds tFactorBounds = shiftPercentPositive(tBounds, scale);
         IntVar tFactor = model.newIntVar(tFactorBounds.lower(), tFactorBounds.upper(), "one_plus_t_scaled");
         model.addEquality(tFactor, LinearExpr.newBuilder().add(stats.get(STATUS_ATTACK_POWER_UP)).add(scale).build());
 
 
-        ProductTerm statusProduct = ProductTerm.addExactProduct(model, "status_product", weightedStatuses, weightedBounds, tFactor, tFactorBounds);
+        ProductTerm statusProduct = addExactProduct(model, "status_product", weightedStatuses, weightedBounds, tFactor, tFactorBounds);
 
         LongBounds statusComponentBounds = new LongBounds(statusProduct.bounds().lower() / UPTIME_SCALE, statusProduct.bounds().upper() / UPTIME_SCALE);
         IntVar statusComponent = model.newIntVar(statusComponentBounds.lower(), statusComponentBounds.upper(), "status_component");
@@ -100,7 +102,7 @@ public class OptimizationObjective {
         /*
         Sum up P by adding Attack and Status components
          */
-        LongBounds pBounds = LongBounds.sum(attackProduct.bounds(), statusComponentBounds);
+        LongBounds pBounds = sum(attackProduct.bounds(), statusComponentBounds);
         IntVar p = model.newIntVar(pBounds.lower(), pBounds.upper(), "attack_component");
         model.addEquality(p, LinearExpr.newBuilder().add(attackProduct.variable()).add(statusComponent).build());
 
@@ -118,21 +120,21 @@ public class OptimizationObjective {
      * @param upper
      */
     record LongBounds(long lower, long upper) {
-        private static LongBounds asLongBounds(StatBoundsCalculator.StatBounds bounds) {
+        static LongBounds asLongBounds(StatBoundsCalculator.StatBounds bounds) {
             return new LongBounds(bounds.lower(), bounds.upper());
         }
 
-        private static LongBounds shiftPercentPositive(LongBounds bounds,
+        static LongBounds shiftPercentPositive(LongBounds bounds,
                 long offset) {
             return new LongBounds(bounds.lower() + offset, bounds.upper() + offset);
         }
 
-        private static LongBounds sum(LongBounds a,
+        static LongBounds sum(LongBounds a,
                 LongBounds b) {
             return new LongBounds(a.lower() + b.lower(), a.upper() + b.upper());
         }
 
-        private static LongBounds productBounds(LongBounds a,
+        static LongBounds productBounds(LongBounds a,
                 LongBounds b) {
 
             long p1 = Math.multiplyExact(a.lower(), b.lower());
@@ -146,14 +148,14 @@ public class OptimizationObjective {
 
 
     record ProductTerm(IntVar variable, LongBounds bounds) {
-        private static ProductTerm addExactProduct(CpModel model,
+        static ProductTerm addExactProduct(CpModel model,
                 String name,
                 IntVar left,
                 LongBounds leftBounds,
                 IntVar right,
                 LongBounds rightBounds) {
 
-            LongBounds productBounds = LongBounds.productBounds(leftBounds, rightBounds);
+            LongBounds productBounds = productBounds(leftBounds, rightBounds);
 
             IntVar product = model.newIntVar(productBounds.lower(), productBounds.upper(), name);
 
