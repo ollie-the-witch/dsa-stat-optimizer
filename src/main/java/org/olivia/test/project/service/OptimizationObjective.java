@@ -2,10 +2,13 @@ package org.olivia.test.project.service;
 
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.IntVar;
+import com.google.ortools.sat.LinearExpr;
 import org.olivia.test.project.config.OptimizationConfigurations;
 import org.olivia.test.project.config.enumerations.StatVariableName;
 
 import java.util.Map;
+
+import static org.olivia.test.project.config.enumerations.StatVariableName.*;
 
 public class OptimizationObjective {
 
@@ -14,6 +17,9 @@ public class OptimizationObjective {
             Map<StatVariableName, IntVar> stats,
             Map<StatVariableName, StatBoundsCalculator.StatBounds> bounds,
             StatusUptimeParameters parameters) {
+
+        final long UPTIME_SCALE = getUptimeScale();
+        IntVar uptimeScaleConstant = model.newConstant(UPTIME_SCALE);
 
         /*
         Item to maximize: Damage
@@ -42,17 +48,61 @@ public class OptimizationObjective {
         Operations will exceed Integer maxes so convert to longs first
          */
 
-        LongBounds xBounds = asLongBounds(bounds.get(StatVariableName.ATTACK));
-        LongBounds wBounds = asLongBounds(bounds.get(StatVariableName.ATTACK_POWER_UP));
-        LongBounds yBounds = asLongBounds(bounds.get(StatVariableName.CRITICAL_RATE));
-        LongBounds zBounds = asLongBounds(bounds.get(StatVariableName.CRITICAL_DAMAGE));
-        LongBounds uBounds = asLongBounds(bounds.get(StatVariableName.PHYSICAL_ATTACK));
-        LongBounds vBounds = asLongBounds(bounds.get(StatVariableName.ELEMENTAL_ATTACK));
-        LongBounds tBounds = asLongBounds(bounds.get(StatVariableName.STATUS_ATTACK_POWER_UP));
+        LongBounds xBounds = LongBounds.asLongBounds(bounds.get(ATTACK));
+        LongBounds wBounds = LongBounds.asLongBounds(bounds.get(ATTACK_POWER_UP));
+        LongBounds yBounds = LongBounds.asLongBounds(bounds.get(CRITICAL_RATE));
+        LongBounds zBounds = LongBounds.asLongBounds(bounds.get(CRITICAL_DAMAGE));
+        LongBounds uBounds = LongBounds.asLongBounds(bounds.get(PHYSICAL_ATTACK));
+        LongBounds vBounds = LongBounds.asLongBounds(bounds.get(ELEMENTAL_ATTACK));
+        LongBounds tBounds = LongBounds.asLongBounds(bounds.get(STATUS_ATTACK_POWER_UP));
 
         long scale = parameters.scale();
-        long physicalUptime = Math.round(parameters.physicalStatusUptime() * getUptimeScale());
-        long elementalUptime = Math.round(parameters.elementalStatusUptime() * getUptimeScale());
+        long physicalUptime = Math.round(parameters.physicalStatusUptime() * UPTIME_SCALE);
+        long elementalUptime = Math.round(parameters.elementalStatusUptime() * UPTIME_SCALE);
+
+        /*
+        Calculate P element
+         */
+
+        /*
+        Attack * Attack Power
+         */
+        LongBounds wFactorBounds = LongBounds.shiftPercentPositive(wBounds, scale);
+        IntVar wFactor = model.newIntVar(wFactorBounds.lower(), wFactorBounds.upper(), "one_plus_w_scaled");
+        model.addEquality(wFactor, LinearExpr.newBuilder().add(stats.get(ATTACK_POWER_UP)).add(scale).build());
+        ProductTerm attackProduct = ProductTerm.addExactProduct(model, "attack_times_one_plus_w", stats.get(ATTACK), xBounds, wFactor, wFactorBounds);
+
+
+        /*
+        Status Attack & Uptime: Update bounds because lower uptime makes limit values smaller
+        Status Attack * Status Attack Power Up
+        Adding Bounds to Status component (divide by uptime scale to remove the effects of scaling up uptime earlier)
+         */
+        LongBounds physicalWeightedBounds = LongBounds.productBounds(uBounds, new LongBounds(physicalUptime, physicalUptime));
+        LongBounds elementalWeightedBounds = LongBounds.productBounds(vBounds, new LongBounds(elementalUptime, elementalUptime));
+        LongBounds weightedBounds = LongBounds.sum(physicalWeightedBounds, elementalWeightedBounds);
+
+        IntVar weightedStatuses = model.newIntVar(weightedBounds.lower(), weightedBounds.upper(), "uptime_weighted_status_attack");
+        model.addEquality(weightedStatuses,
+                LinearExpr.newBuilder().addTerm(stats.get(PHYSICAL_ATTACK), physicalUptime).addTerm(stats.get(ELEMENTAL_ATTACK), elementalUptime).build());
+
+        LongBounds tFactorBounds = LongBounds.shiftPercentPositive(tBounds, scale);
+        IntVar tFactor = model.newIntVar(tFactorBounds.lower(), tFactorBounds.upper(), "one_plus_t_scaled");
+        model.addEquality(tFactor, LinearExpr.newBuilder().add(stats.get(STATUS_ATTACK_POWER_UP)).add(scale).build());
+
+
+        ProductTerm statusProduct = ProductTerm.addExactProduct(model, "status_product", weightedStatuses, weightedBounds, tFactor, tFactorBounds);
+
+        LongBounds statusComponentBounds = new LongBounds(statusProduct.bounds().lower() / UPTIME_SCALE, statusProduct.bounds().upper() / UPTIME_SCALE);
+        IntVar statusComponent = model.newIntVar(statusComponentBounds.lower(), statusComponentBounds.upper(), "status_component");
+        model.addDivisionEquality(statusComponent, statusProduct.variable(), uptimeScaleConstant);
+
+        /*
+        Sum up P by adding Attack and Status components
+         */
+        LongBounds pBounds = LongBounds.sum(attackProduct.bounds(), statusComponentBounds);
+        IntVar p = model.newIntVar(pBounds.lower(), pBounds.upper(), "attack_component");
+        model.addEquality(p, LinearExpr.newBuilder().add(attackProduct.variable()).add(statusComponent).build());
 
 
         return null;
@@ -62,12 +112,58 @@ public class OptimizationObjective {
         return OptimizationConfigurations.getScale();
     }
 
-    private static LongBounds asLongBounds(StatBoundsCalculator.StatBounds bounds) {
-        return new LongBounds(bounds.lower(), bounds.upper());
+
+    /**
+     * @param lower
+     * @param upper
+     */
+    record LongBounds(long lower, long upper) {
+        private static LongBounds asLongBounds(StatBoundsCalculator.StatBounds bounds) {
+            return new LongBounds(bounds.lower(), bounds.upper());
+        }
+
+        private static LongBounds shiftPercentPositive(LongBounds bounds,
+                long offset) {
+            return new LongBounds(bounds.lower() + offset, bounds.upper() + offset);
+        }
+
+        private static LongBounds sum(LongBounds a,
+                LongBounds b) {
+            return new LongBounds(a.lower() + b.lower(), a.upper() + b.upper());
+        }
+
+        private static LongBounds productBounds(LongBounds a,
+                LongBounds b) {
+
+            long p1 = Math.multiplyExact(a.lower(), b.lower());
+            long p2 = Math.multiplyExact(a.lower(), b.upper());
+            long p3 = Math.multiplyExact(a.upper(), b.lower());
+            long p4 = Math.multiplyExact(a.upper(), b.upper());
+
+            return new LongBounds(Math.min(Math.min(p1, p2), Math.min(p3, p4)), Math.max(Math.max(p1, p2), Math.max(p3, p4)));
+        }
     }
 
-    record LongBounds(long lower, long upper) {
+
+    record ProductTerm(IntVar variable, LongBounds bounds) {
+        private static ProductTerm addExactProduct(CpModel model,
+                String name,
+                IntVar left,
+                LongBounds leftBounds,
+                IntVar right,
+                LongBounds rightBounds) {
+
+            LongBounds productBounds = LongBounds.productBounds(leftBounds, rightBounds);
+
+            IntVar product = model.newIntVar(productBounds.lower(), productBounds.upper(), name);
+
+            model.addMultiplicationEquality(product, left, right);
+
+
+            return new ProductTerm(product, productBounds);
+        }
     }
+
 
     /**
      * Record for passing information about damage uptime
