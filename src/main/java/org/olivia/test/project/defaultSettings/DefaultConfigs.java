@@ -46,7 +46,7 @@ public class DefaultConfigs {
 
         CharacterStatInput characterStatInput = userInputs.characterStatInput();
         int totalAttack = characterStatInput.characterSheetAttack();
-        double totalAttackUp = characterStatInput.sumAttackPowerUp();
+        double totalAttackUp = characterStatInput.sumOptimizationAttackPowerUp();
         int baseAttack = (int) (totalAttack / (1 + (totalAttackUp / 100)));
 
         double totalCriticalRate = characterStatInput.sumCriticalRate();
@@ -102,8 +102,9 @@ public class DefaultConfigs {
     static class DefaultUserInput {
         private static CharacterStatInput getCharacterStatInput() {
 
-            List<CharacterStatInput.AttackPowerUpSources> attackPowerUpSourcesList = List.of(new CharacterStatInput.AttackPowerUpSources("title", 11.6),
-                    new CharacterStatInput.AttackPowerUpSources("karma", 15));
+            List<CharacterStatInput.AttackPowerUpSources> attackPowerUpSourcesList = List.of(new CharacterStatInput.AttackPowerUpSources("title", 11.6, true),
+                    new CharacterStatInput.AttackPowerUpSources("karma", 15, true),
+                    new CharacterStatInput.AttackPowerUpSources("battle will", 300, false));
             List<CharacterStatInput.CriticalRateSources> criticalRateSourcesList = List.of(new CharacterStatInput.CriticalRateSources("character sheet", 32),
                     new CharacterStatInput.CriticalRateSources("awakening", 10));
             List<CharacterStatInput.CriticalDamageSources> criticalDamageSourcesList = List.of(new CharacterStatInput.CriticalDamageSources("character sheet", 82.3));

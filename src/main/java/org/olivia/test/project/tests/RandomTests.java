@@ -5,6 +5,7 @@ import org.olivia.test.project.config.SelectCount;
 import org.olivia.test.project.config.StatIncreases;
 import org.olivia.test.project.config.StatLimitConfiguration;
 import org.olivia.test.project.defaultSettings.DefaultConfigs;
+import org.olivia.test.project.service.OptimizationModel;
 import org.olivia.test.project.service.StatBoundsCalculator;
 
 public class RandomTests {
@@ -16,6 +17,7 @@ public class RandomTests {
         SelectCount defaultSelectCount = DefaultConfigs.defaultSelectCount();
         StatLimitConfiguration defaultStatBoundsConfiguration = DefaultConfigs.defaultStatBoundsConfiguration();
 
-        System.out.println(StatBoundsCalculator.calculateStatBounds(defaultBaseStats, defaultStatIncrease, defaultStatBoundsConfiguration));
+        OptimizationModel optimizationModel = new OptimizationModel();
+        optimizationModel.createOptimizationModel(defaultBaseStats, defaultStatIncrease, defaultStatBoundsConfiguration, defaultSelectCount);
     }
 }

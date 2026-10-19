@@ -7,6 +7,10 @@ import java.util.List;
 public record CharacterStatInput(int characterSheetAttack, StatusAttackPower statusAttackPower, AdditionalDamageBonus additionalDamageBonus,
                                  List<AttackPowerUpSources> attackPowerUpSources, List<CriticalRateSources> criticalRateSources,
                                  List<CriticalDamageSources> criticalDamageSources) {
+    public double sumOptimizationAttackPowerUp() {
+        return CollectionUtils.isNotEmpty(attackPowerUpSources) ? attackPowerUpSources.stream().filter(AttackPowerUpSources::optimizationFactor).map(AttackPowerUpSources::percent).mapToDouble(f -> f).sum() : 0d;
+    }
+
     public double sumAttackPowerUp() {
         return CollectionUtils.isNotEmpty(attackPowerUpSources) ? attackPowerUpSources.stream().map(AttackPowerUpSources::percent).mapToDouble(f -> f).sum() : 0d;
     }
@@ -27,7 +31,7 @@ public record CharacterStatInput(int characterSheetAttack, StatusAttackPower sta
 
     }
 
-    public record AttackPowerUpSources(String source, double percent) {
+    public record AttackPowerUpSources(String source, double percent, boolean optimizationFactor) {
     }
 
     public record CriticalRateSources(String source, double percent) {
