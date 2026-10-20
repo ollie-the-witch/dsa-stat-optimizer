@@ -1,13 +1,17 @@
 package org.olivia.test.project;
 
 import com.google.ortools.Loader;
-import org.olivia.test.project.config.*;
+import org.olivia.test.project.data.*;
+import org.olivia.test.project.data.config.SelectCount;
+import org.olivia.test.project.data.config.SolverConfiguration;
+import org.olivia.test.project.data.config.StatLimitConfiguration;
 import org.olivia.test.project.inputs.InputService;
 import org.olivia.test.project.inputs.dto.UserInputsDto;
 import org.olivia.test.project.optimizationModel.OptimizationModelBundle;
 import org.olivia.test.project.optimizationModel.OptimizationModelService;
 import org.olivia.test.project.optimizationSolver.OptimizationResult;
 import org.olivia.test.project.optimizationSolver.OptimizationSolverService;
+import org.olivia.test.project.outputs.ConsolePrint;
 
 public class OptimizerOrchestrator {
 
@@ -22,9 +26,9 @@ public class OptimizerOrchestrator {
         InputService inputService = new InputService();
 
         UserInputsDto userInput = inputService.readInputMock();
-        BaseStats baseStats = BaseStats.calculateBaseStats(userInput);
-        StatusUptimeParameters defaultDamageUptimeParameter = StatusUptimeParameters.damageUptimeParameter(userInput);
-        StatLimitConfiguration defaultStatBoundsConfiguration = StatLimitConfiguration.defaultStatBoundsConfiguration(StatLimitConfiguration.getDefaultCriticalCap(), userInput);
+        BaseScaledStats baseScaledStats = BaseScaledStats.calculateBaseStats(userInput);
+        StatusUptimeParameters damageUptimeParameter = StatusUptimeParameters.damageUptimeParameter(userInput);
+        StatLimitConfiguration statBoundsConfiguration = StatLimitConfiguration.statBoundsConfiguration(StatLimitConfiguration.getDefaultCriticalCap(), userInput);
         SolverConfiguration solverConfiguration = SolverConfiguration.configuration(userInput);
 
         StatIncreases defaultStatIncrease = StatIncreases.defaultStatIncreases();
@@ -36,12 +40,20 @@ public class OptimizerOrchestrator {
          */
 
         OptimizationModelService optimizationModelService = new OptimizationModelService();
-        OptimizationModelBundle model = optimizationModelService.createOptimizationModelBundle(baseStats, defaultStatIncrease, defaultStatBoundsConfiguration, defaultSelectCount
-                , defaultDamageUptimeParameter);
+        OptimizationModelBundle model = optimizationModelService.createOptimizationModelBundle(baseScaledStats, defaultStatIncrease, statBoundsConfiguration, defaultSelectCount
+                , damageUptimeParameter);
 
         /*
         Call Solver
          */
-        OptimizationResult result = OptimizationSolverService.optimize(model, solverConfiguration);
+        OptimizationSolverService solverService = new OptimizationSolverService(model, solverConfiguration);
+        OptimizationResult result = solverService.optimize();
+
+        /*
+        Output Results
+         */
+        ConsolePrint consolePrinter = new ConsolePrint(userInput, baseScaledStats, damageUptimeParameter, result);
+        consolePrinter.printOutput();
+
     }
 }

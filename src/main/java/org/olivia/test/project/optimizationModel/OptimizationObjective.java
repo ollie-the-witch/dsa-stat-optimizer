@@ -3,13 +3,13 @@ package org.olivia.test.project.optimizationModel;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearExpr;
-import org.olivia.test.project.config.OptimizationConfigurations;
-import org.olivia.test.project.config.StatusUptimeParameters;
-import org.olivia.test.project.config.enumerations.StatVariableName;
+import org.olivia.test.project.data.config.OptimizationConfigurations;
+import org.olivia.test.project.data.StatusUptimeParameters;
+import org.olivia.test.project.data.enumerations.StatVariable;
 
 import java.util.Map;
 
-import static org.olivia.test.project.config.enumerations.StatVariableName.*;
+import static org.olivia.test.project.data.enumerations.StatVariable.*;
 import static org.olivia.test.project.optimizationModel.OptimizationObjective.LongBounds.*;
 import static org.olivia.test.project.optimizationModel.OptimizationObjective.ProductTerm.addExactProduct;
 
@@ -17,8 +17,8 @@ public class OptimizationObjective {
 
 
     public static IntVar addObjective(CpModel model,
-            Map<StatVariableName, IntVar> stats,
-            Map<StatVariableName, StatBoundsCalculator.StatBounds> bounds,
+            Map<StatVariable, IntVar> stats,
+            Map<StatVariable, StatBoundsCalculator.StatBounds> bounds,
             StatusUptimeParameters parameters) {
 
         final long UPTIME_SCALE = getUptimeScale();
@@ -59,8 +59,8 @@ public class OptimizationObjective {
         LongBounds eleAttackLongBounds = asLongBounds(bounds.get(ELEMENTAL_ATTACK));
         LongBounds statusAttackUpLongBounds = asLongBounds(bounds.get(STATUS_ATTACK_POWER_UP));
 
-        long physicalScaledUptime = Math.round(parameters.physicalStatusUptime() * UPTIME_SCALE);
-        long elementalScaledUptime = Math.round(parameters.elementalStatusUptime() * UPTIME_SCALE);
+        long physicalScaledUptime = parameters.physicalStatusUptimeScaledLong();
+        long elementalScaledUptime = parameters.elementalStatusUptimeScaledLong();
 
         /*
         ========================= Calculate P element ===========================

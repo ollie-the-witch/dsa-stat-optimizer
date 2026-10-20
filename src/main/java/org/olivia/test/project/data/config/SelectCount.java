@@ -1,6 +1,6 @@
-package org.olivia.test.project.config;
+package org.olivia.test.project.data.config;
 
-import org.olivia.test.project.config.enumerations.StatCategory;
+import org.olivia.test.project.data.enumerations.StatCategory;
 
 import java.util.HashMap;
 import java.util.Map;

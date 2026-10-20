@@ -1,4 +1,4 @@
-package org.olivia.test.project.config.enumerations;
+package org.olivia.test.project.data.enumerations;
 
 public enum StatCategory {
     MAIN("Main"), SUBSTAT("Sub"), RUNE("Rune"),

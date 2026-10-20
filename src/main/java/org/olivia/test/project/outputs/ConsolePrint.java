@@ -1,0 +1,75 @@
+package org.olivia.test.project.outputs;
+
+import org.olivia.test.project.data.BaseScaledStats;
+import org.olivia.test.project.data.config.OptimizationConfigurations;
+import org.olivia.test.project.data.StatusUptimeParameters;
+import org.olivia.test.project.data.enumerations.EquipmentSlots;
+import org.olivia.test.project.data.enumerations.StatVariable;
+import org.olivia.test.project.inputs.dto.UserInputsDto;
+import org.olivia.test.project.optimizationSolver.OptimizationResult;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+public class ConsolePrint {
+    private final OptimizationResult result;
+    UserInputsDto userInput;
+    private final BaseScaledStats baseScaledStats;
+    private final StatusUptimeParameters statusUptimeParameters;
+
+    public ConsolePrint(UserInputsDto userInput,
+            BaseScaledStats baseScaledStats,
+            StatusUptimeParameters statusUptimeParameters,
+            OptimizationResult result) {
+        this.userInput = Objects.requireNonNull(userInput);
+        this.baseScaledStats = Objects.requireNonNull(baseScaledStats);
+        this.statusUptimeParameters = Objects.requireNonNull(statusUptimeParameters);
+        this.result = Objects.requireNonNull(result);
+
+    }
+
+    public void printOutput() {
+
+        System.out.println("Debug Input Stats:");
+        System.out.println(userInput.solverSettingsInputDto());
+        System.out.println(userInput.assumptionsInputDto());
+        System.out.println(userInput.criticalBoundsInputDto());
+        System.out.println(userInput.characterStatInputDto());
+
+        System.out.printf("Solver Status: %s\n", result.solverStatus());
+
+        System.out.println("\nFinal Stats");
+        Integer rawAttack = result.finalStats().get(StatVariable.ATTACK);
+        Integer totalAttackPowerUp = result.finalStats().get(StatVariable.ATTACK_POWER_UP);
+        int characterAttack = (int) (rawAttack * ((totalAttackPowerUp) + OptimizationConfigurations.getScale()) / OptimizationConfigurations.getScale());
+        System.out.printf("%-25s: %d\n", "Character Attack", characterAttack);
+        for(StatVariable statEnum : StatVariable.values()){
+            Integer finalStat = result.finalStats().get(statEnum);
+            String statName = statEnum.alias;
+            if(statEnum.scale) {
+                System.out.printf("%-25s: %.2f%%\n", statName, StatVariable.convertScaledToReadable(true, finalStat));
+            } else {
+                System.out.printf("%-25s: %d\n", statName, finalStat);
+            }
+        }
+
+        System.out.println("\nEquipment Choices");
+        for(EquipmentSlots slot : EquipmentSlots.values()){
+            StatVariable mainStat = result.mainStats().get(slot);
+            List<StatVariable> subStat = result.subStats().get(slot);
+            String subStatList = subStat.stream().map(s -> s.alias).collect(Collectors.joining(", "));
+            System.out.printf("%-15s: MainSlot[%s], SubSlot[%s]\n", slot.alias, mainStat.alias, subStatList);
+        }
+
+        System.out.println("\nRune Choices");
+        for(var entry : result.runeCounts().entrySet()){
+            System.out.printf("%-25s: %d Runes\n", entry.getKey().alias, entry.getValue());
+        }
+
+        System.out.println("\nSolver");
+        System.out.printf("Scaled Objective: %d\n", result.scaledObjective());
+        System.out.printf("Best Objective Bound: %f\n", result.bestObjectiveBound());
+        System.out.printf("Wall Time (s): %f\n", result.wallTimeSeconds());
+    }
+}

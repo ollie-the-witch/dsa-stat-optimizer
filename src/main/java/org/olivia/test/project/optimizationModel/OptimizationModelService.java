@@ -1,10 +1,12 @@
 package org.olivia.test.project.optimizationModel;
 
 import com.google.ortools.sat.*;
-import org.olivia.test.project.config.*;
-import org.olivia.test.project.config.enumerations.EquipmentSlots;
-import org.olivia.test.project.config.enumerations.StatCategory;
-import org.olivia.test.project.config.enumerations.StatVariableName;
+import org.olivia.test.project.data.*;
+import org.olivia.test.project.data.config.SelectCount;
+import org.olivia.test.project.data.config.StatLimitConfiguration;
+import org.olivia.test.project.data.enumerations.EquipmentSlots;
+import org.olivia.test.project.data.enumerations.StatCategory;
+import org.olivia.test.project.data.enumerations.StatVariable;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -22,11 +24,11 @@ public class OptimizationModelService {
      * @param availableStats stats available to equipment of this (stat) category, derived from StatIncreases
      * @return the choices
      */
-    private static Map<EquipmentSlots, Map<StatVariableName, BoolVar>> createSlotChoices(CpModel model,
+    private static Map<EquipmentSlots, Map<StatVariable, BoolVar>> createSlotChoices(CpModel model,
             String variablePrefix,
-            Iterable<StatVariableName> availableStats) {
+            Iterable<StatVariable> availableStats) {
 
-        Map<EquipmentSlots, Map<StatVariableName, BoolVar>> choicesBySlot = new EnumMap<>(EquipmentSlots.class);
+        Map<EquipmentSlots, Map<StatVariable, BoolVar>> choicesBySlot = new EnumMap<>(EquipmentSlots.class);
 
         /*
          * For each equipment slot,
@@ -35,9 +37,9 @@ public class OptimizationModelService {
          * Add a BoolVar for the stat to create potential choice of stat
          */
         for (EquipmentSlots slot : EquipmentSlots.values()) {
-            Map<StatVariableName, BoolVar> choicesByStat = new EnumMap<>(StatVariableName.class);
+            Map<StatVariable, BoolVar> choicesByStat = new EnumMap<>(StatVariable.class);
 
-            for (StatVariableName stat : availableStats) {
+            for (StatVariable stat : availableStats) {
                 String variableName = String.format("%s_%s_%s", variablePrefix, slot.name(), stat.name());
                 choicesByStat.put(stat, model.newBoolVar(variableName));
             }
@@ -55,7 +57,7 @@ public class OptimizationModelService {
      * @param requiredCount how many choices of stats for this equipment slot (and category, implicitly via choiceBySlot)
      */
     private static void enforceSelectionCount(CpModel model,
-            Map<EquipmentSlots, Map<StatVariableName, BoolVar>> choicesBySlot,
+            Map<EquipmentSlots, Map<StatVariable, BoolVar>> choicesBySlot,
             int requiredCount) {
 
         for (EquipmentSlots slot : EquipmentSlots.values()) {
@@ -75,18 +77,18 @@ public class OptimizationModelService {
      * @param slotCount         how many runes are allowed (5 by default)
      * @return the "selection choices" for runes
      */
-    private static Map<StatVariableName, IntVar> createRuneCounts(CpModel model,
-            Map<StatVariableName, Integer> runeStatIncreases,
+    private static Map<StatVariable, IntVar> createRuneCounts(CpModel model,
+            Map<StatVariable, Integer> runeStatIncreases,
             int slotCount) {
 
-        Map<StatVariableName, IntVar> runeCounts = new EnumMap<>(StatVariableName.class);
+        Map<StatVariable, IntVar> runeCounts = new EnumMap<>(StatVariable.class);
 
 
         /*
         Allow 0-5 selections for each runeStatIncreases stat
         Restrict total count to 5
          */
-        for (StatVariableName stat : runeStatIncreases.keySet()) {
+        for (StatVariable stat : runeStatIncreases.keySet()) {
             runeCounts.put(stat, model.newIntVar(0, slotCount, String.format("rune_count_%s", stat.name())));
         }
 
@@ -105,7 +107,7 @@ public class OptimizationModelService {
      * Set final constraints for each stat
      *
      * @param model                 model
-     * @param baseStats             base stats calculated from input (percentages are scaled to 10000)
+     * @param baseScaledStats             base stats calculated from input (percentages are scaled to 10000)
      * @param statIncreases         the increase increment data for main, sub, runes, for each stat for each slot
      * @param mainStatChoicesBySlot selection for main stats
      * @param substatChoicesBySlot  selection for sub stats
@@ -113,25 +115,25 @@ public class OptimizationModelService {
      * @param statBounds            theoretical limits for each stat
      * @return the final constraints for stats
      */
-    private static Map<StatVariableName, IntVar> createFinalStatVariables(CpModel model,
-            BaseStats baseStats,
+    private static Map<StatVariable, IntVar> createFinalStatVariables(CpModel model,
+            BaseScaledStats baseScaledStats,
             StatIncreases statIncreases,
-            Map<EquipmentSlots, Map<StatVariableName, BoolVar>> mainStatChoicesBySlot,
-            Map<EquipmentSlots, Map<StatVariableName, BoolVar>> substatChoicesBySlot,
-            Map<StatVariableName, IntVar> runeCountsByStat,
-            Map<StatVariableName, StatBoundsCalculator.StatBounds> statBounds) {
+            Map<EquipmentSlots, Map<StatVariable, BoolVar>> mainStatChoicesBySlot,
+            Map<EquipmentSlots, Map<StatVariable, BoolVar>> substatChoicesBySlot,
+            Map<StatVariable, IntVar> runeCountsByStat,
+            Map<StatVariable, StatBoundsCalculator.StatBounds> statBounds) {
 
-        Map<StatVariableName, IntVar> finalStats = new EnumMap<>(StatVariableName.class);
+        Map<StatVariable, IntVar> finalStats = new EnumMap<>(StatVariable.class);
 
         /*
         For each stat, add the calculation possibilities
          */
-        for (StatVariableName stat : baseStats.baseStats().keySet()) {
+        for (StatVariable stat : baseScaledStats.baseStats().keySet()) {
             var bounds = statBounds.get(stat);
             IntVar finalStat = model.newIntVar(bounds.lower(), bounds.upper(), String.format("final_%s", stat.name()));
 
             LinearExprBuilder expression = LinearExpr.newBuilder();
-            expression.add(baseStats.baseStats().get(stat));
+            expression.add(baseScaledStats.baseStats().get(stat));
 
             /*
             For each category/equipment & rune for this stat, add how much to increment for calculations in solver
@@ -173,13 +175,13 @@ public class OptimizationModelService {
      * - Envelope
      * - Bounds
      *
-     * @param baseStats
+     * @param baseScaledStats
      * @param statIncreases
      * @param statLimitConfiguration
      * @param selectCount
      * @return
      */
-    public OptimizationModelBundle createOptimizationModelBundle(BaseStats baseStats,
+    public OptimizationModelBundle createOptimizationModelBundle(BaseScaledStats baseScaledStats,
             StatIncreases statIncreases,
             StatLimitConfiguration statLimitConfiguration,
             SelectCount selectCount,
@@ -189,7 +191,7 @@ public class OptimizationModelService {
         Input validation
         Initial Bounds and restrictions
          */
-        Map<StatVariableName, StatBoundsCalculator.StatBounds> bounds = StatBoundsCalculator.calculateStatBounds(baseStats, statIncreases, statLimitConfiguration);
+        Map<StatVariable, StatBoundsCalculator.StatBounds> bounds = StatBoundsCalculator.calculateStatBounds(baseScaledStats, statIncreases, statLimitConfiguration);
 
 
         CpModel model = new CpModel();
@@ -198,8 +200,8 @@ public class OptimizationModelService {
         Create the slot choices for main and substat, then add selection count (default 1,4 respectively)
         Also create the selection choices of runes
          */
-        Map<EquipmentSlots, Map<StatVariableName, BoolVar>> mainStatChoicesBySlot = createSlotChoices(model, "main", statIncreases.mainStats().keySet());
-        Map<EquipmentSlots, Map<StatVariableName, BoolVar>> substatChoicesBySlot = createSlotChoices(model, "sub", statIncreases.subStats().keySet());
+        Map<EquipmentSlots, Map<StatVariable, BoolVar>> mainStatChoicesBySlot = createSlotChoices(model, "main", statIncreases.mainStats().keySet());
+        Map<EquipmentSlots, Map<StatVariable, BoolVar>> substatChoicesBySlot = createSlotChoices(model, "sub", statIncreases.subStats().keySet());
 
         int mainStatCount = selectCount.count().get(StatCategory.MAIN);
         int substatCount = selectCount.count().get(StatCategory.SUBSTAT);
@@ -207,12 +209,12 @@ public class OptimizationModelService {
         enforceSelectionCount(model, substatChoicesBySlot, substatCount);
 
         int slotCount = EquipmentSlots.values().length;
-        Map<StatVariableName, IntVar> runeCounts = createRuneCounts(model, statIncreases.runes(), slotCount);
+        Map<StatVariable, IntVar> runeCounts = createRuneCounts(model, statIncreases.runes(), slotCount);
 
         /*
         Define each final stat as base + selected increments.
          */
-        Map<StatVariableName, IntVar> finalStats = createFinalStatVariables(model, baseStats, statIncreases, mainStatChoicesBySlot, substatChoicesBySlot, runeCounts, bounds);
+        Map<StatVariable, IntVar> finalStats = createFinalStatVariables(model, baseScaledStats, statIncreases, mainStatChoicesBySlot, substatChoicesBySlot, runeCounts, bounds);
 
         IntVar objective = OptimizationObjective.addObjective(model, finalStats, bounds, uptimeParameters);
 

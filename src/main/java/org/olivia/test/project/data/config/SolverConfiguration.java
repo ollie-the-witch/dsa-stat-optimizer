@@ -1,4 +1,4 @@
-package org.olivia.test.project.config;
+package org.olivia.test.project.data.config;
 
 import org.olivia.test.project.inputs.dto.SolverSettingsInputDto;
 import org.olivia.test.project.inputs.dto.UserInputsDto;

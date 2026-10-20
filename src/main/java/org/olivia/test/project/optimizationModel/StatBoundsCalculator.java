@@ -1,31 +1,31 @@
 package org.olivia.test.project.optimizationModel;
 
-import org.olivia.test.project.config.BaseStats;
-import org.olivia.test.project.config.StatIncreases;
-import org.olivia.test.project.config.StatLimitConfiguration;
-import org.olivia.test.project.config.enumerations.EquipmentSlots;
-import org.olivia.test.project.config.enumerations.StatVariableName;
+import org.olivia.test.project.data.BaseScaledStats;
+import org.olivia.test.project.data.StatIncreases;
+import org.olivia.test.project.data.config.StatLimitConfiguration;
+import org.olivia.test.project.data.enumerations.EquipmentSlots;
+import org.olivia.test.project.data.enumerations.StatVariable;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class StatBoundsCalculator {
 
-    public static Map<StatVariableName, StatBounds> calculateStatBounds(BaseStats baseStats,
+    public static Map<StatVariable, StatBounds> calculateStatBounds(BaseScaledStats baseScaledStats,
             StatIncreases statIncreases,
             StatLimitConfiguration statLimitConfiguration) {
-        Map<StatVariableName, StatBounds> bounds = new HashMap<>();
+        Map<StatVariable, StatBounds> bounds = new HashMap<>();
 
         int slotCount = EquipmentSlots.values().length;
 
         // hardcoded maximums, and user-set limits
-        Map<StatVariableName, Integer> statCaps = statLimitConfiguration.statCaps();
-        Map<StatVariableName, Integer> statUpperBounds = statLimitConfiguration.statUpperBounds();
-        Map<StatVariableName, Integer> statLowerBounds = statLimitConfiguration.statLowerBounds();
+        Map<StatVariable, Integer> statCaps = statLimitConfiguration.statCaps();
+        Map<StatVariable, Integer> statUpperBounds = statLimitConfiguration.statUpperBounds();
+        Map<StatVariable, Integer> statLowerBounds = statLimitConfiguration.statLowerBounds();
 
-        // for each stat in StatVariableName, calculate the upper and lower bounds of the stat, within set bounds
-        for (StatVariableName stat : StatVariableName.values()) {
-            int lowerBound = baseStats.baseStats().get(stat);
+        // for each stat in StatVariable, calculate the upper and lower bounds of the stat, within set bounds
+        for (StatVariable stat : StatVariable.values()) {
+            int lowerBound = baseScaledStats.baseStats().get(stat);
             int upperBound = lowerBound;
 
             // Adding stats for main stat and sub stat slots

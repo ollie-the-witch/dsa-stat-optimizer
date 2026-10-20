@@ -1,4 +1,4 @@
-package org.olivia.test.project.config;
+package org.olivia.test.project.data.config;
 
 public class OptimizationConfigurations {
     private static int scale = 10000;
@@ -12,5 +12,9 @@ public class OptimizationConfigurations {
 
     public static int getScale() {
         return scale;
+    }
+
+    public static double getDoubleScale() {
+        return (double) scale;
     }
 }

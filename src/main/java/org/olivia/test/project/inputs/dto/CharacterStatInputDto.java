@@ -4,7 +4,7 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
 
-public record CharacterStatInputDto(int characterSheetAttack, StatusAttackPower statusAttackPower, AdditionalDamageBonus additionalDamageBonus,
+public record CharacterStatInputDto(int characterSheetAttack, StatusAttackPower statusAttackPower, StatusAdditionalDamageBonus statusAdditionalDamageBonus,
                                     List<AttackPowerUpSources> attackPowerUpSources, List<CriticalRateSources> criticalRateSources,
                                     List<CriticalDamageSources> criticalDamageSources) {
     public double sumOptimizationAttackPowerUp() {
@@ -24,7 +24,7 @@ public record CharacterStatInputDto(int characterSheetAttack, StatusAttackPower 
         return CollectionUtils.isNotEmpty(criticalDamageSources) ? criticalDamageSources.stream().map(CriticalDamageSources::percent).mapToDouble(f -> f).sum() : 0d;
     }
 
-    public record AdditionalDamageBonus(double physicalAdditionalDamageBonus, double elementalAdditionalDamageBonus) {
+    public record StatusAdditionalDamageBonus(double physicalAdditionalDamageBonus, double elementalAdditionalDamageBonus) {
 
     }
 
