@@ -50,29 +50,28 @@ public class OptimizationObjective {
         Operations will exceed Integer maxes so convert to longs first
          */
 
-        LongBounds xBounds = asLongBounds(bounds.get(ATTACK));
-        LongBounds wBounds = asLongBounds(bounds.get(ATTACK_POWER_UP));
-        LongBounds yBounds = asLongBounds(bounds.get(CRITICAL_RATE));
-        LongBounds zBounds = asLongBounds(bounds.get(CRITICAL_DAMAGE));
-        LongBounds uBounds = asLongBounds(bounds.get(PHYSICAL_ATTACK));
-        LongBounds vBounds = asLongBounds(bounds.get(ELEMENTAL_ATTACK));
-        LongBounds tBounds = asLongBounds(bounds.get(STATUS_ATTACK_POWER_UP));
+        LongBounds attackLongBounds = asLongBounds(bounds.get(ATTACK));
+        LongBounds attackUpLongBounds = asLongBounds(bounds.get(ATTACK_POWER_UP));
+        LongBounds critRateLongBounds = asLongBounds(bounds.get(CRITICAL_RATE));
+        LongBounds critDamageLongBounds = asLongBounds(bounds.get(CRITICAL_DAMAGE));
+        LongBounds physAttackLongBounds = asLongBounds(bounds.get(PHYSICAL_ATTACK));
+        LongBounds eleAttackLongBounds = asLongBounds(bounds.get(ELEMENTAL_ATTACK));
+        LongBounds statusAttackUpLongBounds = asLongBounds(bounds.get(STATUS_ATTACK_POWER_UP));
 
-        long scale = parameters.scale();
-        long physicalUptime = Math.round(parameters.physicalStatusUptime() * UPTIME_SCALE);
-        long elementalUptime = Math.round(parameters.elementalStatusUptime() * UPTIME_SCALE);
+        long physicalScaledUptime = Math.round(parameters.physicalStatusUptime() * UPTIME_SCALE);
+        long elementalScaledUptime = Math.round(parameters.elementalStatusUptime() * UPTIME_SCALE);
 
         /*
-        Calculate P element
+        ========================= Calculate P element ===========================
          */
 
         /*
         Attack * Attack Power
          */
-        LongBounds wFactorBounds = shiftPercentPositive(wBounds, scale);
-        IntVar wFactor = model.newIntVar(wFactorBounds.lower(), wFactorBounds.upper(), "one_plus_w_scaled");
-        model.addEquality(wFactor, LinearExpr.newBuilder().add(stats.get(ATTACK_POWER_UP)).add(scale).build());
-        ProductTerm attackProduct = addExactProduct(model, "attack_times_one_plus_w", stats.get(ATTACK), xBounds, wFactor, wFactorBounds);
+        LongBounds positiveAttackUpBounds = shiftPercentPositive(attackUpLongBounds, UPTIME_SCALE);
+        IntVar attackUpVar = model.newIntVar(positiveAttackUpBounds.lower(), positiveAttackUpBounds.upper(), "one_plus_w_scaled");
+        model.addEquality(attackUpVar, LinearExpr.newBuilder().add(stats.get(ATTACK_POWER_UP)).add(UPTIME_SCALE).build());
+        ProductTerm attackProduct = addExactProduct(model, "attack_times_one_plus_w", stats.get(ATTACK), attackLongBounds, attackUpVar, positiveAttackUpBounds);
 
 
         /*
@@ -80,34 +79,66 @@ public class OptimizationObjective {
         Status Attack * Status Attack Power Up
         Adding Bounds to Status component (divide by uptime scale to remove the effects of scaling up uptime earlier)
          */
-        LongBounds physicalWeightedBounds = productBounds(uBounds, new LongBounds(physicalUptime, physicalUptime));
-        LongBounds elementalWeightedBounds = productBounds(vBounds, new LongBounds(elementalUptime, elementalUptime));
-        LongBounds weightedBounds = sum(physicalWeightedBounds, elementalWeightedBounds);
+        LongBounds physicalWeightedBounds = productBounds(physAttackLongBounds, new LongBounds(physicalScaledUptime, physicalScaledUptime));
+        LongBounds elementalWeightedBounds = productBounds(eleAttackLongBounds, new LongBounds(elementalScaledUptime, elementalScaledUptime));
+        LongBounds statusWeightedBounds = sum(physicalWeightedBounds, elementalWeightedBounds);
 
-        IntVar weightedStatuses = model.newIntVar(weightedBounds.lower(), weightedBounds.upper(), "uptime_weighted_status_attack");
-        model.addEquality(weightedStatuses,
-                LinearExpr.newBuilder().addTerm(stats.get(PHYSICAL_ATTACK), physicalUptime).addTerm(stats.get(ELEMENTAL_ATTACK), elementalUptime).build());
+        IntVar weightedStatusAttackVar = model.newIntVar(statusWeightedBounds.lower(), statusWeightedBounds.upper(), "uptime_weighted_status_attack");
+        model.addEquality(weightedStatusAttackVar,
+                LinearExpr.newBuilder().addTerm(stats.get(PHYSICAL_ATTACK), physicalScaledUptime).addTerm(stats.get(ELEMENTAL_ATTACK), elementalScaledUptime).build());
 
-        LongBounds tFactorBounds = shiftPercentPositive(tBounds, scale);
-        IntVar tFactor = model.newIntVar(tFactorBounds.lower(), tFactorBounds.upper(), "one_plus_t_scaled");
-        model.addEquality(tFactor, LinearExpr.newBuilder().add(stats.get(STATUS_ATTACK_POWER_UP)).add(scale).build());
+        LongBounds positiveStatusAttackUpBounds = shiftPercentPositive(statusAttackUpLongBounds, UPTIME_SCALE);
+        IntVar statusAttackUpFactor = model.newIntVar(positiveStatusAttackUpBounds.lower(), positiveStatusAttackUpBounds.upper(), "one_plus_t_scaled");
+        model.addEquality(statusAttackUpFactor, LinearExpr.newBuilder().add(stats.get(STATUS_ATTACK_POWER_UP)).add(UPTIME_SCALE).build());
 
-
-        ProductTerm statusProduct = addExactProduct(model, "status_product", weightedStatuses, weightedBounds, tFactor, tFactorBounds);
-
+        ProductTerm statusProduct = addExactProduct(model, "status_product", weightedStatusAttackVar, statusWeightedBounds, statusAttackUpFactor, positiveStatusAttackUpBounds);
         LongBounds statusComponentBounds = new LongBounds(statusProduct.bounds().lower() / UPTIME_SCALE, statusProduct.bounds().upper() / UPTIME_SCALE);
-        IntVar statusComponent = model.newIntVar(statusComponentBounds.lower(), statusComponentBounds.upper(), "status_component");
-        model.addDivisionEquality(statusComponent, statusProduct.variable(), uptimeScaleConstant);
+        IntVar statusComponentVar = model.newIntVar(statusComponentBounds.lower(), statusComponentBounds.upper(), "status_component");
+        model.addDivisionEquality(statusComponentVar, statusProduct.variable(), uptimeScaleConstant);
 
         /*
         Sum up P by adding Attack and Status components
          */
-        LongBounds pBounds = sum(attackProduct.bounds(), statusComponentBounds);
-        IntVar p = model.newIntVar(pBounds.lower(), pBounds.upper(), "attack_component");
-        model.addEquality(p, LinearExpr.newBuilder().add(attackProduct.variable()).add(statusComponent).build());
+        LongBounds pComponentBounds = sum(attackProduct.bounds(), statusComponentBounds);
+        IntVar pComponentVar = model.newIntVar(pComponentBounds.lower(), pComponentBounds.upper(), "attack_component");
+        model.addEquality(pComponentVar, LinearExpr.newBuilder().add(attackProduct.variable()).add(statusComponentVar).build());
 
 
-        return null;
+        /*
+        ========================= Calculate Q element ===========================
+         */
+        /*
+        Multiply Critical Rate and Critical Damage, then multiply the bounds by scale twice
+        (since Q is the product of Critical Rate and Critical Damage which are both scaled)
+         */
+        ProductTerm criticalProduct = addExactProduct(
+                model, "critical_rate_times_damage",
+                stats.get(CRITICAL_RATE), critRateLongBounds,
+                stats.get(CRITICAL_DAMAGE), critDamageLongBounds);
+
+        long scaleSquared = UPTIME_SCALE * UPTIME_SCALE;
+        LongBounds qBounds = shiftPercentPositive(criticalProduct.bounds(), scaleSquared);
+
+        IntVar q = model.newIntVar(
+                qBounds.lower(), qBounds.upper(), "critical_component");
+        model.addEquality(
+                q,
+                LinearExpr.newBuilder()
+                        .add(criticalProduct.variable())
+                        .add(scaleSquared)
+                        .build());
+
+        /*
+        ========================= P * Q ===========================
+        R = P * Q; maximize R.
+         */
+        ProductTerm objective = addExactProduct(
+                model, "scaled_damage_objective",
+                pComponentVar, pComponentBounds, q, qBounds);
+
+        model.maximize(objective.variable());
+
+        return objective.variable();
     }
 
     private static long getUptimeScale() {
@@ -170,10 +201,9 @@ public class OptimizationObjective {
     /**
      * Record for passing information about damage uptime
      *
-     * @param scale
      * @param physicalStatusUptime
      * @param elementalStatusUptime
      */
-    public record StatusUptimeParameters(int scale, double physicalStatusUptime, double elementalStatusUptime) {
+    public record StatusUptimeParameters(double physicalStatusUptime, double elementalStatusUptime) {
     }
 }
