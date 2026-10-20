@@ -4,6 +4,7 @@ import org.olivia.test.project.config.*;
 import org.olivia.test.project.config.enumerations.StatCategory;
 import org.olivia.test.project.config.enumerations.StatVariableName;
 import org.olivia.test.project.inputs.*;
+import org.olivia.test.project.service.OptimizationObjective;
 
 import java.util.HashMap;
 import java.util.List;
@@ -91,6 +92,11 @@ public class DefaultConfigs {
 
         System.out.println("defaultStatBoundsConfiguration(): " + statLimitConfiguration);
         return statLimitConfiguration;
+    }
+
+    public static OptimizationObjective.StatusUptimeParameters defaultDamageUptimeParameter() {
+        UserInputs userInputs = DefaultUserInput.createSampleInput();
+        return new OptimizationObjective.StatusUptimeParameters(userInputs.assumptionsInput().physicalStatusUptime(), userInputs.assumptionsInput().elementalStatusUptime());
     }
 
     static class DefaultUserInput {

@@ -6,6 +6,7 @@ import org.olivia.test.project.config.StatIncreases;
 import org.olivia.test.project.config.StatLimitConfiguration;
 import org.olivia.test.project.defaultSettings.DefaultConfigs;
 import org.olivia.test.project.service.OptimizationModel;
+import org.olivia.test.project.service.OptimizationObjective;
 
 public class RandomTests {
 
@@ -16,7 +17,8 @@ public class RandomTests {
         SelectCount defaultSelectCount = DefaultConfigs.defaultSelectCount();
         StatLimitConfiguration defaultStatBoundsConfiguration = DefaultConfigs.defaultStatBoundsConfiguration();
 
+        OptimizationObjective.StatusUptimeParameters defaultDamageUptimeParameter = DefaultConfigs.defaultDamageUptimeParameter();
         OptimizationModel optimizationModel = new OptimizationModel();
-        optimizationModel.createOptimizationModel(defaultBaseStats, defaultStatIncrease, defaultStatBoundsConfiguration, defaultSelectCount);
+        optimizationModel.createOptimizationModel(defaultBaseStats, defaultStatIncrease, defaultStatBoundsConfiguration, defaultSelectCount, defaultDamageUptimeParameter);
     }
 }

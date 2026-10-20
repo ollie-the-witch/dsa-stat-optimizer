@@ -199,7 +199,8 @@ public class OptimizationModel {
     public OptimizationModelBundle createOptimizationModel(BaseStats baseStats,
             StatIncreases statIncreases,
             StatLimitConfiguration statLimitConfiguration,
-            SelectCount selectCount) {
+            SelectCount selectCount,
+            OptimizationObjective.StatusUptimeParameters uptimeParameters) {
 
         /*
         Input validation
@@ -230,9 +231,10 @@ public class OptimizationModel {
          */
         Map<StatVariableName, IntVar> finalStats = createFinalStatVariables(model, baseStats, statIncreases, mainStatChoicesBySlot, substatChoicesBySlot, runeCounts, bounds);
 
-        IntVar objective = null;
+        IntVar objective = OptimizationObjective.addObjective(model, finalStats, bounds, uptimeParameters);
 
-        return null;
+
+        return new OptimizationModelBundle(model, mainStatChoicesBySlot, substatChoicesBySlot, runeCounts, finalStats, objective, bounds);
     }
 
     public record OptimizationModelBundle(CpModel model, Map<EquipmentSlots, Map<StatVariableName, BoolVar>> mainStatChoicesBySlot,

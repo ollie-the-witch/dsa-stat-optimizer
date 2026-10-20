@@ -84,8 +84,8 @@ public class OptimizationObjective {
         LongBounds statusWeightedBounds = sum(physicalWeightedBounds, elementalWeightedBounds);
 
         IntVar weightedStatusAttackVar = model.newIntVar(statusWeightedBounds.lower(), statusWeightedBounds.upper(), "uptime_weighted_status_attack");
-        model.addEquality(weightedStatusAttackVar,
-                LinearExpr.newBuilder().addTerm(stats.get(PHYSICAL_ATTACK), physicalScaledUptime).addTerm(stats.get(ELEMENTAL_ATTACK), elementalScaledUptime).build());
+        model.addEquality(weightedStatusAttackVar, LinearExpr.newBuilder().addTerm(stats.get(PHYSICAL_ATTACK), physicalScaledUptime).addTerm(stats.get(ELEMENTAL_ATTACK),
+                elementalScaledUptime).build());
 
         LongBounds positiveStatusAttackUpBounds = shiftPercentPositive(statusAttackUpLongBounds, UPTIME_SCALE);
         IntVar statusAttackUpFactor = model.newIntVar(positiveStatusAttackUpBounds.lower(), positiveStatusAttackUpBounds.upper(), "one_plus_t_scaled");
@@ -111,30 +111,20 @@ public class OptimizationObjective {
         Multiply Critical Rate and Critical Damage, then multiply the bounds by scale twice
         (since Q is the product of Critical Rate and Critical Damage which are both scaled)
          */
-        ProductTerm criticalProduct = addExactProduct(
-                model, "critical_rate_times_damage",
-                stats.get(CRITICAL_RATE), critRateLongBounds,
-                stats.get(CRITICAL_DAMAGE), critDamageLongBounds);
+        ProductTerm criticalProduct = addExactProduct(model, "critical_rate_times_damage", stats.get(CRITICAL_RATE), critRateLongBounds, stats.get(CRITICAL_DAMAGE),
+                critDamageLongBounds);
 
         long scaleSquared = UPTIME_SCALE * UPTIME_SCALE;
         LongBounds qBounds = shiftPercentPositive(criticalProduct.bounds(), scaleSquared);
 
-        IntVar q = model.newIntVar(
-                qBounds.lower(), qBounds.upper(), "critical_component");
-        model.addEquality(
-                q,
-                LinearExpr.newBuilder()
-                        .add(criticalProduct.variable())
-                        .add(scaleSquared)
-                        .build());
+        IntVar q = model.newIntVar(qBounds.lower(), qBounds.upper(), "critical_component");
+        model.addEquality(q, LinearExpr.newBuilder().add(criticalProduct.variable()).add(scaleSquared).build());
 
         /*
         ========================= P * Q ===========================
         R = P * Q; maximize R.
          */
-        ProductTerm objective = addExactProduct(
-                model, "scaled_damage_objective",
-                pComponentVar, pComponentBounds, q, qBounds);
+        ProductTerm objective = addExactProduct(model, "scaled_damage_objective", pComponentVar, pComponentBounds, q, qBounds);
 
         model.maximize(objective.variable());
 
@@ -145,11 +135,6 @@ public class OptimizationObjective {
         return OptimizationConfigurations.getScale();
     }
 
-
-    /**
-     * @param lower
-     * @param upper
-     */
     record LongBounds(long lower, long upper) {
         static LongBounds asLongBounds(StatBoundsCalculator.StatBounds bounds) {
             return new LongBounds(bounds.lower(), bounds.upper());
@@ -181,20 +166,73 @@ public class OptimizationObjective {
     record ProductTerm(IntVar variable, LongBounds bounds) {
         static ProductTerm addExactProduct(CpModel model,
                 String name,
-                IntVar left,
-                LongBounds leftBounds,
-                IntVar right,
-                LongBounds rightBounds) {
+                IntVar aVar,
+                LongBounds aBounds,
+                IntVar bVar,
+                LongBounds bBounds) {
 
-            LongBounds productBounds = productBounds(leftBounds, rightBounds);
+            LongBounds productBounds = productBounds(aBounds, bBounds);
 
             IntVar product = model.newIntVar(productBounds.lower(), productBounds.upper(), name);
 
-            model.addMultiplicationEquality(product, left, right);
+            model.addMultiplicationEquality(product, aVar, bVar);
 
-
+            addMcCormickEnvelope(
+                    model, product, aVar, bVar,
+                    aBounds, bBounds);
             return new ProductTerm(product, productBounds);
         }
+    }
+
+    /*
+    Add McCormick Envelope to further restrict the valid values of a linear equation.
+    Adds "four linear inequalities are added based on the upper and lower bounds of the original variables"
+    Basically by stating that the product is within a certain upper and lower bound of the variable products
+     */
+    private static void addMcCormickEnvelope(
+            CpModel model,
+            IntVar product,
+            IntVar aVar,
+            IntVar bVar,
+            LongBounds aBounds,
+            LongBounds bBounds) {
+
+        long aLowerBound = aBounds.lower();
+        long aUpperBound = aBounds.upper();
+        long bLowerBound = bBounds.lower();
+        long bUpperBound = bBounds.upper();
+
+        model.addGreaterOrEqual(
+                LinearExpr.newBuilder()
+                        .add(product)
+                        .addTerm(bVar, -aLowerBound)
+                        .addTerm(aVar, -bLowerBound)
+                        .build(),
+                -aLowerBound * bLowerBound);
+
+        model.addGreaterOrEqual(
+                LinearExpr.newBuilder()
+                        .add(product)
+                        .addTerm(bVar, -aUpperBound)
+                        .addTerm(aVar, -bUpperBound)
+                        .build(),
+                -aUpperBound * bUpperBound);
+
+        model.addLessOrEqual(
+                LinearExpr.newBuilder()
+                        .add(product)
+                        .addTerm(bVar, -aUpperBound)
+                        .addTerm(aVar, -bLowerBound)
+                        .build(),
+                -aUpperBound * bLowerBound);
+
+        model.addLessOrEqual(
+                LinearExpr.newBuilder()
+                        .add(product)
+                        .addTerm(bVar, -aLowerBound)
+                        .addTerm(aVar, -bUpperBound)
+                        .build(),
+                -aLowerBound * bUpperBound);
     }
 
 
