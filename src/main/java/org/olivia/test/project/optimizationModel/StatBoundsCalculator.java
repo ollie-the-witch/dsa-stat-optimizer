@@ -1,4 +1,4 @@
-package org.olivia.test.project.service;
+package org.olivia.test.project.optimizationModel;
 
 import org.olivia.test.project.config.BaseStats;
 import org.olivia.test.project.config.StatIncreases;

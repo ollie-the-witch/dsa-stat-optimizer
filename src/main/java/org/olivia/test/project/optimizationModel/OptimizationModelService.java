@@ -1,10 +1,7 @@
-package org.olivia.test.project.service;
+package org.olivia.test.project.optimizationModel;
 
 import com.google.ortools.sat.*;
-import org.olivia.test.project.config.BaseStats;
-import org.olivia.test.project.config.SelectCount;
-import org.olivia.test.project.config.StatIncreases;
-import org.olivia.test.project.config.StatLimitConfiguration;
+import org.olivia.test.project.config.*;
 import org.olivia.test.project.config.enumerations.EquipmentSlots;
 import org.olivia.test.project.config.enumerations.StatCategory;
 import org.olivia.test.project.config.enumerations.StatVariableName;
@@ -15,7 +12,7 @@ import java.util.Map;
 /**
  * Class to set, for the optimizer, variables, constraints, and sets the final objective to work towards
  */
-public class OptimizationModel {
+public class OptimizationModelService {
 
     private static Map<StatVariableName, BoolVar> createSelectionVariables(CpModel model,
             Map<StatVariableName, int[]> increments,
@@ -196,11 +193,11 @@ public class OptimizationModel {
      * @param selectCount
      * @return
      */
-    public OptimizationModelBundle createOptimizationModel(BaseStats baseStats,
+    public OptimizationModelBundle createOptimizationModelBundle(BaseStats baseStats,
             StatIncreases statIncreases,
             StatLimitConfiguration statLimitConfiguration,
             SelectCount selectCount,
-            OptimizationObjective.StatusUptimeParameters uptimeParameters) {
+            StatusUptimeParameters uptimeParameters) {
 
         /*
         Input validation
@@ -235,11 +232,6 @@ public class OptimizationModel {
 
 
         return new OptimizationModelBundle(model, mainStatChoicesBySlot, substatChoicesBySlot, runeCounts, finalStats, objective, bounds);
-    }
-
-    public record OptimizationModelBundle(CpModel model, Map<EquipmentSlots, Map<StatVariableName, BoolVar>> mainStatChoicesBySlot,
-                                          Map<EquipmentSlots, Map<StatVariableName, BoolVar>> substatChoicesBySlot, Map<StatVariableName, IntVar> runeCountsByStat,
-                                          Map<StatVariableName, IntVar> finalStats, IntVar objective, Map<StatVariableName, StatBoundsCalculator.StatBounds> statBounds) {
     }
 
 

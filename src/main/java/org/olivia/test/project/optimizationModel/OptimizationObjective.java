@@ -1,16 +1,17 @@
-package org.olivia.test.project.service;
+package org.olivia.test.project.optimizationModel;
 
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearExpr;
 import org.olivia.test.project.config.OptimizationConfigurations;
+import org.olivia.test.project.config.StatusUptimeParameters;
 import org.olivia.test.project.config.enumerations.StatVariableName;
 
 import java.util.Map;
 
 import static org.olivia.test.project.config.enumerations.StatVariableName.*;
-import static org.olivia.test.project.service.OptimizationObjective.LongBounds.*;
-import static org.olivia.test.project.service.OptimizationObjective.ProductTerm.addExactProduct;
+import static org.olivia.test.project.optimizationModel.OptimizationObjective.LongBounds.*;
+import static org.olivia.test.project.optimizationModel.OptimizationObjective.ProductTerm.addExactProduct;
 
 public class OptimizationObjective {
 
@@ -135,6 +136,32 @@ public class OptimizationObjective {
         return OptimizationConfigurations.getScale();
     }
 
+    /*
+    Add McCormick Envelope to further restrict the valid values of a linear equation.
+    Adds "four linear inequalities are added based on the upper and lower bounds of the original variables"
+    Basically by stating that the product is within a certain upper and lower bound of the variable products
+     */
+    private static void addMcCormickEnvelope(CpModel model,
+            IntVar product,
+            IntVar aVar,
+            IntVar bVar,
+            LongBounds aBounds,
+            LongBounds bBounds) {
+
+        long aLowerBound = aBounds.lower();
+        long aUpperBound = aBounds.upper();
+        long bLowerBound = bBounds.lower();
+        long bUpperBound = bBounds.upper();
+
+        model.addGreaterOrEqual(LinearExpr.newBuilder().add(product).addTerm(bVar, -aLowerBound).addTerm(aVar, -bLowerBound).build(), -aLowerBound * bLowerBound);
+
+        model.addGreaterOrEqual(LinearExpr.newBuilder().add(product).addTerm(bVar, -aUpperBound).addTerm(aVar, -bUpperBound).build(), -aUpperBound * bUpperBound);
+
+        model.addLessOrEqual(LinearExpr.newBuilder().add(product).addTerm(bVar, -aUpperBound).addTerm(aVar, -bLowerBound).build(), -aUpperBound * bLowerBound);
+
+        model.addLessOrEqual(LinearExpr.newBuilder().add(product).addTerm(bVar, -aLowerBound).addTerm(aVar, -bUpperBound).build(), -aLowerBound * bUpperBound);
+    }
+
     record LongBounds(long lower, long upper) {
         static LongBounds asLongBounds(StatBoundsCalculator.StatBounds bounds) {
             return new LongBounds(bounds.lower(), bounds.upper());
@@ -162,7 +189,6 @@ public class OptimizationObjective {
         }
     }
 
-
     record ProductTerm(IntVar variable, LongBounds bounds) {
         static ProductTerm addExactProduct(CpModel model,
                 String name,
@@ -177,71 +203,8 @@ public class OptimizationObjective {
 
             model.addMultiplicationEquality(product, aVar, bVar);
 
-            addMcCormickEnvelope(
-                    model, product, aVar, bVar,
-                    aBounds, bBounds);
+            addMcCormickEnvelope(model, product, aVar, bVar, aBounds, bBounds);
             return new ProductTerm(product, productBounds);
         }
-    }
-
-    /*
-    Add McCormick Envelope to further restrict the valid values of a linear equation.
-    Adds "four linear inequalities are added based on the upper and lower bounds of the original variables"
-    Basically by stating that the product is within a certain upper and lower bound of the variable products
-     */
-    private static void addMcCormickEnvelope(
-            CpModel model,
-            IntVar product,
-            IntVar aVar,
-            IntVar bVar,
-            LongBounds aBounds,
-            LongBounds bBounds) {
-
-        long aLowerBound = aBounds.lower();
-        long aUpperBound = aBounds.upper();
-        long bLowerBound = bBounds.lower();
-        long bUpperBound = bBounds.upper();
-
-        model.addGreaterOrEqual(
-                LinearExpr.newBuilder()
-                        .add(product)
-                        .addTerm(bVar, -aLowerBound)
-                        .addTerm(aVar, -bLowerBound)
-                        .build(),
-                -aLowerBound * bLowerBound);
-
-        model.addGreaterOrEqual(
-                LinearExpr.newBuilder()
-                        .add(product)
-                        .addTerm(bVar, -aUpperBound)
-                        .addTerm(aVar, -bUpperBound)
-                        .build(),
-                -aUpperBound * bUpperBound);
-
-        model.addLessOrEqual(
-                LinearExpr.newBuilder()
-                        .add(product)
-                        .addTerm(bVar, -aUpperBound)
-                        .addTerm(aVar, -bLowerBound)
-                        .build(),
-                -aUpperBound * bLowerBound);
-
-        model.addLessOrEqual(
-                LinearExpr.newBuilder()
-                        .add(product)
-                        .addTerm(bVar, -aLowerBound)
-                        .addTerm(aVar, -bUpperBound)
-                        .build(),
-                -aLowerBound * bUpperBound);
-    }
-
-
-    /**
-     * Record for passing information about damage uptime
-     *
-     * @param physicalStatusUptime
-     * @param elementalStatusUptime
-     */
-    public record StatusUptimeParameters(double physicalStatusUptime, double elementalStatusUptime) {
     }
 }
