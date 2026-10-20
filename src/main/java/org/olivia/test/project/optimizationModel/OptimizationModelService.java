@@ -14,20 +14,6 @@ import java.util.Map;
  */
 public class OptimizationModelService {
 
-    private static Map<StatVariableName, BoolVar> createSelectionVariables(CpModel model,
-            Map<StatVariableName, int[]> increments,
-            String family,
-            EquipmentSlots slot) {
-        Map<StatVariableName, BoolVar> variables = new EnumMap<>(StatVariableName.class);
-
-        for (StatVariableName stat : increments.keySet()) {
-            String variableName = family + "_" + slot.name() + "_" + stat.name();
-            variables.put(stat, model.newBoolVar(variableName));
-        }
-
-        return variables;
-    }
-
     /**
      * Creates the potential choices for each of the slots
      *
@@ -231,7 +217,7 @@ public class OptimizationModelService {
         IntVar objective = OptimizationObjective.addObjective(model, finalStats, bounds, uptimeParameters);
 
 
-        return new OptimizationModelBundle(model, mainStatChoicesBySlot, substatChoicesBySlot, runeCounts, finalStats, objective, bounds);
+        return new OptimizationModelBundle(model, mainStatChoicesBySlot, substatChoicesBySlot, runeCounts, finalStats, bounds, objective);
     }
 
 

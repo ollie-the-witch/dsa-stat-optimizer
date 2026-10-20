@@ -10,5 +10,5 @@ import java.util.Map;
 
 public record OptimizationModelBundle(CpModel model, Map<EquipmentSlots, Map<StatVariableName, BoolVar>> mainStatChoicesBySlot,
                                       Map<EquipmentSlots, Map<StatVariableName, BoolVar>> substatChoicesBySlot, Map<StatVariableName, IntVar> runeCountsByStat,
-                                      Map<StatVariableName, IntVar> finalStats, IntVar objective, Map<StatVariableName, StatBoundsCalculator.StatBounds> statBounds) {
+                                      Map<StatVariableName, IntVar> finalStats, Map<StatVariableName, StatBoundsCalculator.StatBounds> statBounds, IntVar objective) {
 }

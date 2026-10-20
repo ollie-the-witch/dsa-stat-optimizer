@@ -6,6 +6,8 @@ import org.olivia.test.project.inputs.InputService;
 import org.olivia.test.project.inputs.dto.UserInputsDto;
 import org.olivia.test.project.optimizationModel.OptimizationModelBundle;
 import org.olivia.test.project.optimizationModel.OptimizationModelService;
+import org.olivia.test.project.optimizationSolver.OptimizationResult;
+import org.olivia.test.project.optimizationSolver.OptimizationSolverService;
 
 public class OptimizerOrchestrator {
 
@@ -23,6 +25,7 @@ public class OptimizerOrchestrator {
         BaseStats baseStats = BaseStats.calculateBaseStats(userInput);
         StatusUptimeParameters defaultDamageUptimeParameter = StatusUptimeParameters.damageUptimeParameter(userInput);
         StatLimitConfiguration defaultStatBoundsConfiguration = StatLimitConfiguration.defaultStatBoundsConfiguration(StatLimitConfiguration.getDefaultCriticalCap(), userInput);
+        SolverConfiguration solverConfiguration = SolverConfiguration.configuration(userInput);
 
         StatIncreases defaultStatIncrease = StatIncreases.defaultStatIncreases();
         SelectCount defaultSelectCount = SelectCount.defaultSelectCount();
@@ -35,14 +38,10 @@ public class OptimizerOrchestrator {
         OptimizationModelService optimizationModelService = new OptimizationModelService();
         OptimizationModelBundle model = optimizationModelService.createOptimizationModelBundle(baseStats, defaultStatIncrease, defaultStatBoundsConfiguration, defaultSelectCount
                 , defaultDamageUptimeParameter);
-        System.out.println(model);
 
         /*
         Call Solver
          */
-    }
-
-    private void buildModel() {
-
+        OptimizationResult result = OptimizationSolverService.optimize(model, solverConfiguration);
     }
 }
