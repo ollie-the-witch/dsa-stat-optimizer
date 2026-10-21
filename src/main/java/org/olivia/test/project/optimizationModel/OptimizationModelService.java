@@ -170,12 +170,10 @@ public class OptimizationModelService {
         return finalStats;
     }
 
-    private static void addSelectionHints(
-            CpModel model,
+    private static void addSelectionHints(CpModel model,
             Map<StatVariable, BoolVar> choicesByStat,
             Set<StatVariable> desiredStats,
-            int selectionCount
-    ) {
+            int selectionCount) {
         Set<StatVariable> hintedSelected = EnumSet.noneOf(StatVariable.class);
 
         // Prefer desired stats that are available in this choice map.
@@ -249,20 +247,9 @@ public class OptimizationModelService {
         enforceSelectionCount(model, substatChoicesBySlot, subStatCount);
 
 
-
         for (EquipmentSlots slot : EquipmentSlots.values()) {
-            addSelectionHints(
-                    model,
-                    mainStatChoicesBySlot.get(slot),
-                    hint.mainHint(),
-                    mainStatCount
-            );
-            addSelectionHints(
-                    model,
-                    substatChoicesBySlot.get(slot),
-                    hint.subStatHint(),
-                    subStatCount
-            );
+            addSelectionHints(model, mainStatChoicesBySlot.get(slot), hint.mainHint(), mainStatCount);
+            addSelectionHints(model, substatChoicesBySlot.get(slot), hint.subStatHint(), subStatCount);
         }
 
         int slotCount = EquipmentSlots.values().length;

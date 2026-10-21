@@ -1,12 +1,12 @@
 package org.olivia.test.project.optimizationSolver;
 
-import com.google.ortools.sat.CpSolver;
-import com.google.ortools.sat.CpSolverStatus;
+import com.google.ortools.sat.*;
 import org.olivia.test.project.data.config.SolverConfiguration;
 import org.olivia.test.project.data.enumerations.EquipmentSlots;
 import org.olivia.test.project.data.enumerations.StatVariable;
 import org.olivia.test.project.optimizationModel.OptimizationModelBundle;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -21,18 +21,72 @@ public class OptimizationSolverService {
         this.solverConfiguration = solverConfiguration;
     }
 
-    public OptimizationResult optimize() {
+    private static void excludeFinalStats(CpModel model,
+            Map<StatVariable, IntVar> finalStatVariables,
+            Map<StatVariable, Integer> previousFinalStats,
+            int previousSolve) {
+        List<Literal> differentStatLiterals = new ArrayList<>();
 
-        CpSolver solver = new CpSolver();
-        solver.getParameters().setMaxTimeInSeconds(solverConfiguration.timeLimit());
-        solver.getParameters().setNumSearchWorkers(solverConfiguration.workerCount());
+        for (var entry : finalStatVariables.entrySet()) {
+            StatVariable stat = entry.getKey();
+            IntVar variable = entry.getValue();
+            int previousValue = previousFinalStats.get(stat);
+            BoolVar isDifferent = model.newBoolVar("solve_" + previousSolve + "_different_" + stat.name());
 
-        CpSolverStatus status = solver.solve(bundle.model());
-
-        if (status != CpSolverStatus.OPTIMAL && status != CpSolverStatus.FEASIBLE) {
-            throw new IllegalStateException("Optimization failed. Solver status: " + status);
+            model.addDifferent(variable, previousValue).onlyEnforceIf(isDifferent);
+            model.addEquality(variable, previousValue).onlyEnforceIf(isDifferent.not());
+            differentStatLiterals.add(isDifferent);
         }
 
+        if (differentStatLiterals.isEmpty()) {
+            throw new IllegalStateException("Cannot exclude a prior result without final-stat variables.");
+        }
+        model.addBoolOr(differentStatLiterals.toArray(Literal[]::new));
+    }
+
+    public OptimizationRunResult optimize() {
+        if (solverConfiguration.resultCount() < 1) {
+            throw new IllegalArgumentException("Result count must be at least 1.");
+        }
+
+        List<OptimizationResult> solutions = new ArrayList<>();
+        String stopReason = "Requested number of distinct outcomes returned.";
+
+        for (int solveIndex = 0; solveIndex < solverConfiguration.resultCount(); solveIndex++) {
+            CpSolver solver = new CpSolver();
+            solver.getParameters().setMaxTimeInSeconds(solverConfiguration.timeLimit());
+            solver.getParameters().setNumSearchWorkers(solverConfiguration.workerCount());
+
+            CpSolverStatus status = solver.solve(bundle.model());
+            if (status != CpSolverStatus.OPTIMAL && status != CpSolverStatus.FEASIBLE) {
+                if (status == CpSolverStatus.MODEL_INVALID) {
+                    throw new IllegalStateException("Optimization model is invalid.");
+                }
+                if (solutions.isEmpty()) {
+                    stopReason = status == CpSolverStatus.INFEASIBLE ? "No feasible solution exists for the current model." : "No feasible solution was found before the solver " +
+                            "stopped: " + status + ".";
+                } else {
+                    stopReason = status == CpSolverStatus.INFEASIBLE ? "No further distinct final-stat outcome exists." :
+                            "Stopped before finding another distinct outcome: " + status + ".";
+                }
+                break;
+            }
+
+            solutions.add(readSolution(solver, status));
+            excludeFinalStats(bundle.model(), bundle.finalStats(), solutions.get(solutions.size() - 1).finalStats(), solveIndex + 1);
+        }
+
+        solutions.sort((first, second) -> Long.compare(second.scaledObjective(), first.scaledObjective()));
+        List<OptimizationResult> rankedSolutions = new ArrayList<>(solutions.size());
+        for (int index = 0; index < solutions.size(); index++) {
+            rankedSolutions.add(solutions.get(index).withRank(index + 1));
+        }
+
+        return new OptimizationRunResult(solverConfiguration.resultCount(), rankedSolutions, stopReason);
+    }
+
+    private OptimizationResult readSolution(CpSolver solver,
+            CpSolverStatus status) {
         Map<StatVariable, Integer> finalStats = new EnumMap<>(StatVariable.class);
         bundle.finalStats().forEach((stat, variable) -> finalStats.put(stat, Math.toIntExact(solver.value(variable))));
 
@@ -51,6 +105,7 @@ public class OptimizationSolverService {
         Map<StatVariable, Integer> runeCounts = new EnumMap<>(StatVariable.class);
         bundle.runeCountsByStat().forEach((stat, variable) -> runeCounts.put(stat, Math.toIntExact(solver.value(variable))));
 
-        return new OptimizationResult(status.name(), finalStats, mainStats, subStats, runeCounts, solver.value(bundle.objective()), solver.bestObjectiveBound(), solver.wallTime());
+        return new OptimizationResult(0, status.name(), finalStats, mainStats, subStats, runeCounts, solver.value(bundle.objective()), solver.bestObjectiveBound(),
+                solver.wallTime());
     }
 }

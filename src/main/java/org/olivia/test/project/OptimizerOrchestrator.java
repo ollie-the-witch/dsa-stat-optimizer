@@ -13,7 +13,7 @@ import org.olivia.test.project.inputs.InputService;
 import org.olivia.test.project.inputs.dto.UserInputsDto;
 import org.olivia.test.project.optimizationModel.OptimizationModelBundle;
 import org.olivia.test.project.optimizationModel.OptimizationModelService;
-import org.olivia.test.project.optimizationSolver.OptimizationResult;
+import org.olivia.test.project.optimizationSolver.OptimizationRunResult;
 import org.olivia.test.project.optimizationSolver.OptimizationSolverService;
 import org.olivia.test.project.outputs.ConsolePrint;
 
@@ -53,7 +53,7 @@ public class OptimizerOrchestrator {
         Call Solver
          */
         OptimizationSolverService solverService = new OptimizationSolverService(model, solverConfiguration);
-        OptimizationResult result = solverService.optimize();
+        OptimizationRunResult result = solverService.optimize();
 
         /*
         Output Results

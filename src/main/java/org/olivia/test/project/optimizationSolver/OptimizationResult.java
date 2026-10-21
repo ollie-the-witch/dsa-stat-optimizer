@@ -6,7 +6,11 @@ import org.olivia.test.project.data.enumerations.StatVariable;
 import java.util.List;
 import java.util.Map;
 
-public record OptimizationResult(String solverStatus, Map<StatVariable, Integer> finalStats, Map<EquipmentSlots, StatVariable> mainStats,
+public record OptimizationResult(int rank, String solverStatus, Map<StatVariable, Integer> finalStats, Map<EquipmentSlots, StatVariable> mainStats,
                                  Map<EquipmentSlots, List<StatVariable>> subStats, Map<StatVariable, Integer> runeCounts, long scaledObjective, double bestObjectiveBound,
                                  double wallTimeSeconds) {
+
+    public OptimizationResult withRank(int rank) {
+        return new OptimizationResult(rank, solverStatus, finalStats, mainStats, subStats, runeCounts, scaledObjective, bestObjectiveBound, wallTimeSeconds);
+    }
 }
