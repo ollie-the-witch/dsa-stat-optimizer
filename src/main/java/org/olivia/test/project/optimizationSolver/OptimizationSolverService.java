@@ -63,11 +63,9 @@ public class OptimizationSolverService {
                     throw new IllegalStateException("Optimization model is invalid.");
                 }
                 if (solutions.isEmpty()) {
-                    stopReason = status == CpSolverStatus.INFEASIBLE ? "No feasible solution exists for the current model." : "No feasible solution was found before the solver " +
-                            "stopped: " + status + ".";
+                    stopReason = status == CpSolverStatus.INFEASIBLE ? "No feasible solution exists for the current model." : "No feasible solution was found before the solver " + "stopped: " + status + ".";
                 } else {
-                    stopReason = status == CpSolverStatus.INFEASIBLE ? "No further distinct final-stat outcome exists." :
-                            "Stopped before finding another distinct outcome: " + status + ".";
+                    stopReason = status == CpSolverStatus.INFEASIBLE ? "No further distinct final-stat outcome exists." : "Stopped before finding another distinct outcome: " + status + ".";
                 }
                 break;
             }
@@ -93,19 +91,16 @@ public class OptimizationSolverService {
         Map<EquipmentSlots, StatVariable> mainStats = new EnumMap<>(EquipmentSlots.class);
         Map<EquipmentSlots, List<StatVariable>> subStats = new EnumMap<>(EquipmentSlots.class);
         for (EquipmentSlots slot : EquipmentSlots.values()) {
-            var selectedMain =
-                    bundle.mainStatChoicesBySlot().get(slot).entrySet().stream().filter(entry -> solver.booleanValue(entry.getValue())).map(Map.Entry::getKey).findFirst().orElseThrow(() -> new IllegalStateException("No main stat selected for " + slot));
+            var selectedMain = bundle.mainStatChoicesBySlot().get(slot).entrySet().stream().filter(entry -> solver.booleanValue(entry.getValue())).map(Map.Entry::getKey).findFirst().orElseThrow(() -> new IllegalStateException("No main stat selected for " + slot));
             mainStats.put(slot, selectedMain);
 
-            List<StatVariable> selectedSubStats =
-                    bundle.substatChoicesBySlot().get(slot).entrySet().stream().filter(entry -> solver.booleanValue(entry.getValue())).map(Map.Entry::getKey).toList();
+            List<StatVariable> selectedSubStats = bundle.substatChoicesBySlot().get(slot).entrySet().stream().filter(entry -> solver.booleanValue(entry.getValue())).map(Map.Entry::getKey).toList();
             subStats.put(slot, selectedSubStats);
         }
 
         Map<StatVariable, Integer> runeCounts = new EnumMap<>(StatVariable.class);
         bundle.runeCountsByStat().forEach((stat, variable) -> runeCounts.put(stat, Math.toIntExact(solver.value(variable))));
 
-        return new OptimizationResult(0, status.name(), finalStats, mainStats, subStats, runeCounts, solver.value(bundle.objective()), solver.bestObjectiveBound(),
-                solver.wallTime());
+        return new OptimizationResult(0, status.name(), finalStats, mainStats, subStats, runeCounts, solver.value(bundle.objective()), solver.bestObjectiveBound(), solver.wallTime());
     }
 }

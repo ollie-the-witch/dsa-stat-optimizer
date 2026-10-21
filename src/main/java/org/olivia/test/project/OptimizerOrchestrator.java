@@ -46,8 +46,7 @@ public class OptimizerOrchestrator {
          */
 
         OptimizationModelService optimizationModelService = new OptimizationModelService();
-        OptimizationModelBundle model = optimizationModelService.createOptimizationModelBundle(baseScaledStats, defaultStatIncrease, statBoundsConfiguration, defaultSelectCount,
-                damageUptimeParameter, defaultOptimizationHint);
+        OptimizationModelBundle model = optimizationModelService.createOptimizationModelBundle(baseScaledStats, defaultStatIncrease, statBoundsConfiguration, defaultSelectCount, damageUptimeParameter, defaultOptimizationHint);
 
         /*
         Call Solver

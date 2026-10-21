@@ -6,10 +6,8 @@ public record UserInputsDto(SolverSettingsInputDto solverSettingsInputDto, Chara
                             AssumptionsInputDto assumptionsInputDto) {
 
     private static CharacterStatInputDto getCharacterStatInput() {
-        List<CharacterStatInputDto.AttackPowerUpSources> attackPowerUpSourcesList = List.of(new CharacterStatInputDto.AttackPowerUpSources("title", 11.6, true),
-                new CharacterStatInputDto.AttackPowerUpSources("karma", 15, true), new CharacterStatInputDto.AttackPowerUpSources("battle will", 0, false));
-        List<CharacterStatInputDto.CriticalRateSources> criticalRateSourcesList = List.of(new CharacterStatInputDto.CriticalRateSources("character sheet", 32),
-                new CharacterStatInputDto.CriticalRateSources("awakening", 10), new CharacterStatInputDto.CriticalRateSources("skills", 10));
+        List<CharacterStatInputDto.AttackPowerUpSources> attackPowerUpSourcesList = List.of(new CharacterStatInputDto.AttackPowerUpSources("title", 11.6, true), new CharacterStatInputDto.AttackPowerUpSources("karma", 15, true), new CharacterStatInputDto.AttackPowerUpSources("battle will", 0, false));
+        List<CharacterStatInputDto.CriticalRateSources> criticalRateSourcesList = List.of(new CharacterStatInputDto.CriticalRateSources("character sheet", 32), new CharacterStatInputDto.CriticalRateSources("awakening", 10), new CharacterStatInputDto.CriticalRateSources("skills", 10));
         List<CharacterStatInputDto.CriticalDamageSources> criticalDamageSourcesList = List.of(new CharacterStatInputDto.CriticalDamageSources("character sheet", 82.3));
         CharacterStatInputDto.StatusAdditionalDamageBonus statusAdditionalDamageBonus = new CharacterStatInputDto.StatusAdditionalDamageBonus(15, 35);
         CharacterStatInputDto.StatusAttackPower statusAttackPower = new CharacterStatInputDto.StatusAttackPower(100, 425, 0);

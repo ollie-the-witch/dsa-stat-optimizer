@@ -10,8 +10,7 @@ import org.olivia.test.project.inputs.dto.UserInputsDto;
  */
 public record StatusDamageBonus(double physicalStatusUptime, double elementalStatusUptime) {
     public static StatusDamageBonus damageBonusParameter(UserInputsDto userInputsDto) {
-        return new StatusDamageBonus(userInputsDto.characterStatInputDto().statusAdditionalDamageBonus().physicalAdditionalDamageBonus(),
-                userInputsDto.characterStatInputDto().statusAdditionalDamageBonus().elementalAdditionalDamageBonus());
+        return new StatusDamageBonus(userInputsDto.characterStatInputDto().statusAdditionalDamageBonus().physicalAdditionalDamageBonus(), userInputsDto.characterStatInputDto().statusAdditionalDamageBonus().elementalAdditionalDamageBonus());
     }
 
     public double physicalDamageBonusMultiplier() {

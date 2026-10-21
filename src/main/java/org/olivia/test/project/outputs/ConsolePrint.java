@@ -77,7 +77,7 @@ public class ConsolePrint {
             StatVariable mainStat = result.mainStats().get(slot);
             List<StatVariable> subStat = result.subStats().get(slot);
             String subStatList = subStat.stream().map(s -> s.alias).collect(Collectors.joining(", "));
-            System.out.printf("%-15s: MainSlot[%s], SubSlot[%s]\n", slot.alias, mainStat.alias, subStatList);
+            System.out.printf("%-15s: MainSlot [%s], SubSlot [%s]\n", slot.alias, mainStat.alias, subStatList);
         }
 
         System.out.println("\nRune Choices");
@@ -102,8 +102,7 @@ public class ConsolePrint {
     private void printDamage(OptimizationResult result) {
         DamageCalculator damageCalculator = new DamageCalculator();
 
-        DamageCalculator.DamageCalculatorPacket defaultUptimePacket = new DamageCalculator.DamageCalculatorPacket(result.finalStats(), userInput, statusUptimeParameters,
-                statusDamageBonus);
+        DamageCalculator.DamageCalculatorPacket defaultUptimePacket = new DamageCalculator.DamageCalculatorPacket(result.finalStats(), userInput, statusUptimeParameters, statusDamageBonus);
         System.out.printf("%-50s: %.3f\n", formatDamageString("Uptime Factored", statusUptimeParameters), damageCalculator.calculateDamage(defaultUptimePacket));
 
         StatusUptimeParameters noUptime = new StatusUptimeParameters(0, 0);
@@ -111,13 +110,11 @@ public class ConsolePrint {
         System.out.printf("%-50s: %.3f\n", formatDamageString("No Uptime Factored", statusUptimeParameters), damageCalculator.calculateDamage(noUptimePacket));
 
         StatusUptimeParameters physicalUptime = new StatusUptimeParameters(100, 0);
-        DamageCalculator.DamageCalculatorPacket physicalUptimePacket = new DamageCalculator.DamageCalculatorPacket(result.finalStats(), userInput, physicalUptime,
-                statusDamageBonus);
+        DamageCalculator.DamageCalculatorPacket physicalUptimePacket = new DamageCalculator.DamageCalculatorPacket(result.finalStats(), userInput, physicalUptime, statusDamageBonus);
         System.out.printf("%-50s: %.3f\n", formatDamageString("Physical Uptime Only", statusUptimeParameters), damageCalculator.calculateDamage(physicalUptimePacket));
 
         StatusUptimeParameters elementalUptime = new StatusUptimeParameters(0, 100);
-        DamageCalculator.DamageCalculatorPacket elementalUptimePacket = new DamageCalculator.DamageCalculatorPacket(result.finalStats(), userInput, elementalUptime,
-                statusDamageBonus);
+        DamageCalculator.DamageCalculatorPacket elementalUptimePacket = new DamageCalculator.DamageCalculatorPacket(result.finalStats(), userInput, elementalUptime, statusDamageBonus);
         System.out.printf("%-50s: %.3f\n", formatDamageString("Elemental Uptime Only", statusUptimeParameters), damageCalculator.calculateDamage(elementalUptimePacket));
 
         StatusUptimeParameters fullUptime = new StatusUptimeParameters(100, 100);

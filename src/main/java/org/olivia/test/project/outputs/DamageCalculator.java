@@ -12,8 +12,7 @@ public class DamageCalculator {
 
     public double calculateDamage(DamageCalculatorPacket packet) {
         long attack = packet.finalStats().get(StatVariable.ATTACK);
-        double attackPowerUp =
-                1 + (packet.finalStats.get(StatVariable.ATTACK_POWER_UP) / OptimizationConfigurations.getDoubleScale()) + (packet.userInputsDto.characterStatInputDto().sumAdditionalAttackPowerUp() / 100);
+        double attackPowerUp = 1 + (packet.finalStats.get(StatVariable.ATTACK_POWER_UP) / OptimizationConfigurations.getDoubleScale()) + (packet.userInputsDto.characterStatInputDto().sumAdditionalAttackPowerUp() / 100);
 
         long physicalAttack = packet.finalStats.get(StatVariable.PHYSICAL_ATTACK);
         long elementalAttack = packet.finalStats.get(StatVariable.ELEMENTAL_ATTACK);
