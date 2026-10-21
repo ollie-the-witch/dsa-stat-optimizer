@@ -1,7 +1,10 @@
 package org.olivia.test.project;
 
 import com.google.ortools.Loader;
-import org.olivia.test.project.data.*;
+import org.olivia.test.project.data.BaseScaledStats;
+import org.olivia.test.project.data.StatIncreases;
+import org.olivia.test.project.data.StatusDamageBonus;
+import org.olivia.test.project.data.StatusUptimeParameters;
 import org.olivia.test.project.data.config.SelectCount;
 import org.olivia.test.project.data.config.SolverConfiguration;
 import org.olivia.test.project.data.config.StatLimitConfiguration;
@@ -29,6 +32,7 @@ public class OptimizerOrchestrator {
         BaseScaledStats baseScaledStats = BaseScaledStats.calculateBaseStats(userInput);
         StatusUptimeParameters damageUptimeParameter = StatusUptimeParameters.damageUptimeParameter(userInput);
         StatLimitConfiguration statBoundsConfiguration = StatLimitConfiguration.statBoundsConfiguration(StatLimitConfiguration.getDefaultCriticalCap(), userInput);
+        StatusDamageBonus statusDamageBonus = StatusDamageBonus.damageBonusParameter(userInput);
         SolverConfiguration solverConfiguration = SolverConfiguration.configuration(userInput);
 
         StatIncreases defaultStatIncrease = StatIncreases.defaultStatIncreases();
@@ -40,8 +44,8 @@ public class OptimizerOrchestrator {
          */
 
         OptimizationModelService optimizationModelService = new OptimizationModelService();
-        OptimizationModelBundle model = optimizationModelService.createOptimizationModelBundle(baseScaledStats, defaultStatIncrease, statBoundsConfiguration, defaultSelectCount
-                , damageUptimeParameter);
+        OptimizationModelBundle model = optimizationModelService.createOptimizationModelBundle(baseScaledStats, defaultStatIncrease, statBoundsConfiguration, defaultSelectCount,
+                damageUptimeParameter);
 
         /*
         Call Solver
@@ -52,7 +56,7 @@ public class OptimizerOrchestrator {
         /*
         Output Results
          */
-        ConsolePrint consolePrinter = new ConsolePrint(userInput, baseScaledStats, damageUptimeParameter, result);
+        ConsolePrint consolePrinter = new ConsolePrint(userInput, baseScaledStats, damageUptimeParameter, statusDamageBonus, result);
         consolePrinter.printOutput();
 
     }

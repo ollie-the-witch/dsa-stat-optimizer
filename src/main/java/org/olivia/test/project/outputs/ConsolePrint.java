@@ -1,8 +1,9 @@
 package org.olivia.test.project.outputs;
 
 import org.olivia.test.project.data.BaseScaledStats;
-import org.olivia.test.project.data.config.OptimizationConfigurations;
+import org.olivia.test.project.data.StatusDamageBonus;
 import org.olivia.test.project.data.StatusUptimeParameters;
+import org.olivia.test.project.data.config.OptimizationConfigurations;
 import org.olivia.test.project.data.enumerations.EquipmentSlots;
 import org.olivia.test.project.data.enumerations.StatVariable;
 import org.olivia.test.project.inputs.dto.UserInputsDto;
@@ -14,17 +15,20 @@ import java.util.stream.Collectors;
 
 public class ConsolePrint {
     private final OptimizationResult result;
-    UserInputsDto userInput;
+    private final UserInputsDto userInput;
     private final BaseScaledStats baseScaledStats;
+    private final StatusDamageBonus statusDamageBonus;
     private final StatusUptimeParameters statusUptimeParameters;
 
     public ConsolePrint(UserInputsDto userInput,
             BaseScaledStats baseScaledStats,
             StatusUptimeParameters statusUptimeParameters,
+            StatusDamageBonus statusDamageBonus,
             OptimizationResult result) {
         this.userInput = Objects.requireNonNull(userInput);
         this.baseScaledStats = Objects.requireNonNull(baseScaledStats);
         this.statusUptimeParameters = Objects.requireNonNull(statusUptimeParameters);
+        this.statusDamageBonus = Objects.requireNonNull(statusDamageBonus);
         this.result = Objects.requireNonNull(result);
 
     }
@@ -42,12 +46,12 @@ public class ConsolePrint {
         System.out.println("\nFinal Stats");
         Integer rawAttack = result.finalStats().get(StatVariable.ATTACK);
         Integer totalAttackPowerUp = result.finalStats().get(StatVariable.ATTACK_POWER_UP);
-        int characterAttack = (int) (rawAttack * ((totalAttackPowerUp) + OptimizationConfigurations.getScale()) / OptimizationConfigurations.getScale());
+        int characterAttack = rawAttack * ((totalAttackPowerUp) + OptimizationConfigurations.getScale()) / OptimizationConfigurations.getScale();
         System.out.printf("%-25s: %d\n", "Character Attack", characterAttack);
-        for(StatVariable statEnum : StatVariable.values()){
+        for (StatVariable statEnum : StatVariable.values()) {
             Integer finalStat = result.finalStats().get(statEnum);
             String statName = statEnum.alias;
-            if(statEnum.scale) {
+            if (statEnum.scale) {
                 System.out.printf("%-25s: %.2f%%\n", statName, StatVariable.convertScaledToReadable(true, finalStat));
             } else {
                 System.out.printf("%-25s: %d\n", statName, finalStat);
@@ -55,7 +59,7 @@ public class ConsolePrint {
         }
 
         System.out.println("\nEquipment Choices");
-        for(EquipmentSlots slot : EquipmentSlots.values()){
+        for (EquipmentSlots slot : EquipmentSlots.values()) {
             StatVariable mainStat = result.mainStats().get(slot);
             List<StatVariable> subStat = result.subStats().get(slot);
             String subStatList = subStat.stream().map(s -> s.alias).collect(Collectors.joining(", "));
@@ -63,13 +67,47 @@ public class ConsolePrint {
         }
 
         System.out.println("\nRune Choices");
-        for(var entry : result.runeCounts().entrySet()){
+        for (var entry : result.runeCounts().entrySet()) {
             System.out.printf("%-25s: %d Runes\n", entry.getKey().alias, entry.getValue());
         }
 
+        System.out.println("\nEffective Damage Calculations");
+        printDamage();
+
+
         System.out.println("\nSolver");
-        System.out.printf("Scaled Objective: %d\n", result.scaledObjective());
-        System.out.printf("Best Objective Bound: %f\n", result.bestObjectiveBound());
+        System.out.printf("Objective Bound Rate: %.2f%%\n", result.scaledObjective() / result.bestObjectiveBound());
         System.out.printf("Wall Time (s): %f\n", result.wallTimeSeconds());
+    }
+
+    private String formatDamageString(String summary,
+            StatusUptimeParameters statusUptimeParameters) {
+        return String.format("%s [%.2f%% Physical, %.2f%% Elemental]", summary, statusUptimeParameters.physicalStatusUptime(), statusUptimeParameters.elementalStatusUptime());
+    }
+
+    private void printDamage() {
+        DamageCalculator damageCalculator = new DamageCalculator();
+
+        DamageCalculator.DamageCalculatorPacket defaultUptimePacket = new DamageCalculator.DamageCalculatorPacket(result.finalStats(), userInput, statusUptimeParameters,
+                statusDamageBonus);
+        System.out.printf("%-50s: %.3f\n", formatDamageString("Uptime Factored", statusUptimeParameters), damageCalculator.calculateDamage(defaultUptimePacket));
+
+        StatusUptimeParameters noUptime = new StatusUptimeParameters(0, 0);
+        DamageCalculator.DamageCalculatorPacket noUptimePacket = new DamageCalculator.DamageCalculatorPacket(result.finalStats(), userInput, noUptime, statusDamageBonus);
+        System.out.printf("%-50s: %.3f\n", formatDamageString("No Uptime Factored", statusUptimeParameters), damageCalculator.calculateDamage(noUptimePacket));
+
+        StatusUptimeParameters physicalUptime = new StatusUptimeParameters(100, 0);
+        DamageCalculator.DamageCalculatorPacket physicalUptimePacket = new DamageCalculator.DamageCalculatorPacket(result.finalStats(), userInput, physicalUptime,
+                statusDamageBonus);
+        System.out.printf("%-50s: %.3f\n", formatDamageString("Physical Uptime Only", statusUptimeParameters), damageCalculator.calculateDamage(physicalUptimePacket));
+
+        StatusUptimeParameters elementalUptime = new StatusUptimeParameters(0, 100);
+        DamageCalculator.DamageCalculatorPacket elementalUptimePacket = new DamageCalculator.DamageCalculatorPacket(result.finalStats(), userInput, elementalUptime,
+                statusDamageBonus);
+        System.out.printf("%-50s: %.3f\n", formatDamageString("Elemental Uptime Only", statusUptimeParameters), damageCalculator.calculateDamage(elementalUptimePacket));
+
+        StatusUptimeParameters fullUptime = new StatusUptimeParameters(100, 100);
+        DamageCalculator.DamageCalculatorPacket fullTimePacket = new DamageCalculator.DamageCalculatorPacket(result.finalStats(), userInput, fullUptime, statusDamageBonus);
+        System.out.printf("%-50s: %.3f\n", formatDamageString("Full Uptime Factored", statusUptimeParameters), damageCalculator.calculateDamage(fullTimePacket));
     }
 }

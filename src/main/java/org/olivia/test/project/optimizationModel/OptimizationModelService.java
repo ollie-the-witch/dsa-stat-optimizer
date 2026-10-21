@@ -1,7 +1,9 @@
 package org.olivia.test.project.optimizationModel;
 
 import com.google.ortools.sat.*;
-import org.olivia.test.project.data.*;
+import org.olivia.test.project.data.BaseScaledStats;
+import org.olivia.test.project.data.StatIncreases;
+import org.olivia.test.project.data.StatusUptimeParameters;
 import org.olivia.test.project.data.config.SelectCount;
 import org.olivia.test.project.data.config.StatLimitConfiguration;
 import org.olivia.test.project.data.enumerations.EquipmentSlots;
@@ -107,7 +109,7 @@ public class OptimizationModelService {
      * Set final constraints for each stat
      *
      * @param model                 model
-     * @param baseScaledStats             base stats calculated from input (percentages are scaled to 10000)
+     * @param baseScaledStats       base stats calculated from input (percentages are scaled to 10000)
      * @param statIncreases         the increase increment data for main, sub, runes, for each stat for each slot
      * @param mainStatChoicesBySlot selection for main stats
      * @param substatChoicesBySlot  selection for sub stats

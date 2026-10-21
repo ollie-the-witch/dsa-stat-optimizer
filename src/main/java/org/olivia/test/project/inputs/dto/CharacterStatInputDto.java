@@ -3,6 +3,7 @@ package org.olivia.test.project.inputs.dto;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 public record CharacterStatInputDto(int characterSheetAttack, StatusAttackPower statusAttackPower, StatusAdditionalDamageBonus statusAdditionalDamageBonus,
                                     List<AttackPowerUpSources> attackPowerUpSources, List<CriticalRateSources> criticalRateSources,
@@ -12,8 +13,9 @@ public record CharacterStatInputDto(int characterSheetAttack, StatusAttackPower 
                 attackPowerUpSources.stream().filter(AttackPowerUpSources::optimizationFactor).map(AttackPowerUpSources::percent).mapToDouble(f -> f).sum() : 0d;
     }
 
-    public double sumAttackPowerUp() {
-        return CollectionUtils.isNotEmpty(attackPowerUpSources) ? attackPowerUpSources.stream().map(AttackPowerUpSources::percent).mapToDouble(f -> f).sum() : 0d;
+    public double sumAdditionalAttackPowerUp() {
+        return CollectionUtils.isNotEmpty(attackPowerUpSources) ?
+                attackPowerUpSources.stream().filter(Predicate.not(AttackPowerUpSources::optimizationFactor)).map(AttackPowerUpSources::percent).mapToDouble(f -> f).sum() : 0d;
     }
 
     public double sumCriticalRate() {

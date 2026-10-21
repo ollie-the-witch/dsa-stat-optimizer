@@ -3,8 +3,8 @@ package org.olivia.test.project.optimizationModel;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearExpr;
-import org.olivia.test.project.data.config.OptimizationConfigurations;
 import org.olivia.test.project.data.StatusUptimeParameters;
+import org.olivia.test.project.data.config.OptimizationConfigurations;
 import org.olivia.test.project.data.enumerations.StatVariable;
 
 import java.util.Map;

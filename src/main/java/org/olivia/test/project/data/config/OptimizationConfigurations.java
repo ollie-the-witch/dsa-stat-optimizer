@@ -15,6 +15,6 @@ public class OptimizationConfigurations {
     }
 
     public static double getDoubleScale() {
-        return (double) scale;
+        return scale;
     }
 }
