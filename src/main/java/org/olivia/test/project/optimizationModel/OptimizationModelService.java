@@ -4,6 +4,7 @@ import com.google.ortools.sat.*;
 import org.olivia.test.project.data.BaseScaledStats;
 import org.olivia.test.project.data.StatIncreases;
 import org.olivia.test.project.data.StatusUptimeParameters;
+import org.olivia.test.project.data.config.OptimizationHint;
 import org.olivia.test.project.data.config.SelectCount;
 import org.olivia.test.project.data.config.StatLimitConfiguration;
 import org.olivia.test.project.data.enumerations.EquipmentSlots;
@@ -11,7 +12,9 @@ import org.olivia.test.project.data.enumerations.StatCategory;
 import org.olivia.test.project.data.enumerations.StatVariable;
 
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Class to set, for the optimizer, variables, constraints, and sets the final objective to work towards
@@ -167,6 +170,40 @@ public class OptimizationModelService {
         return finalStats;
     }
 
+    private static void addSelectionHints(
+            CpModel model,
+            Map<StatVariable, BoolVar> choicesByStat,
+            Set<StatVariable> desiredStats,
+            int selectionCount
+    ) {
+        Set<StatVariable> hintedSelected = EnumSet.noneOf(StatVariable.class);
+
+        // Prefer desired stats that are available in this choice map.
+        for (StatVariable stat : choicesByStat.keySet()) {
+            if (desiredStats.contains(stat) && hintedSelected.size() < selectionCount) {
+                hintedSelected.add(stat);
+            }
+        }
+
+        // Fill any remaining selections with available stats.
+        for (StatVariable stat : choicesByStat.keySet()) {
+            if (hintedSelected.size() == selectionCount) {
+                break;
+            }
+            hintedSelected.add(stat);
+        }
+
+        // A complete hint must select exactly the configured number of choices.
+        if (hintedSelected.size() != selectionCount) {
+            return;
+        }
+
+        for (var entry : choicesByStat.entrySet()) {
+            long value = hintedSelected.contains(entry.getKey()) ? 1L : 0L;
+            model.addHint(entry.getValue(), value);
+        }
+    }
+
 
     /**
      * TODO WIP; refactor later
@@ -187,7 +224,8 @@ public class OptimizationModelService {
             StatIncreases statIncreases,
             StatLimitConfiguration statLimitConfiguration,
             SelectCount selectCount,
-            StatusUptimeParameters uptimeParameters) {
+            StatusUptimeParameters uptimeParameters,
+            OptimizationHint hint) {
 
         /*
         Input validation
@@ -206,9 +244,26 @@ public class OptimizationModelService {
         Map<EquipmentSlots, Map<StatVariable, BoolVar>> substatChoicesBySlot = createSlotChoices(model, "sub", statIncreases.subStats().keySet());
 
         int mainStatCount = selectCount.count().get(StatCategory.MAIN);
-        int substatCount = selectCount.count().get(StatCategory.SUBSTAT);
+        int subStatCount = selectCount.count().get(StatCategory.SUBSTAT);
         enforceSelectionCount(model, mainStatChoicesBySlot, mainStatCount);
-        enforceSelectionCount(model, substatChoicesBySlot, substatCount);
+        enforceSelectionCount(model, substatChoicesBySlot, subStatCount);
+
+
+
+        for (EquipmentSlots slot : EquipmentSlots.values()) {
+            addSelectionHints(
+                    model,
+                    mainStatChoicesBySlot.get(slot),
+                    hint.mainHint(),
+                    mainStatCount
+            );
+            addSelectionHints(
+                    model,
+                    substatChoicesBySlot.get(slot),
+                    hint.subStatHint(),
+                    subStatCount
+            );
+        }
 
         int slotCount = EquipmentSlots.values().length;
         Map<StatVariable, IntVar> runeCounts = createRuneCounts(model, statIncreases.runes(), slotCount);

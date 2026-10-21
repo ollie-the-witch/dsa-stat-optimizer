@@ -5,6 +5,7 @@ import org.olivia.test.project.data.BaseScaledStats;
 import org.olivia.test.project.data.StatIncreases;
 import org.olivia.test.project.data.StatusDamageBonus;
 import org.olivia.test.project.data.StatusUptimeParameters;
+import org.olivia.test.project.data.config.OptimizationHint;
 import org.olivia.test.project.data.config.SelectCount;
 import org.olivia.test.project.data.config.SolverConfiguration;
 import org.olivia.test.project.data.config.StatLimitConfiguration;
@@ -37,6 +38,7 @@ public class OptimizerOrchestrator {
 
         StatIncreases defaultStatIncrease = StatIncreases.defaultStatIncreases();
         SelectCount defaultSelectCount = SelectCount.defaultSelectCount();
+        OptimizationHint defaultOptimizationHint = OptimizationHint.defaultOptimizationHint();
 
 
         /*
@@ -45,7 +47,7 @@ public class OptimizerOrchestrator {
 
         OptimizationModelService optimizationModelService = new OptimizationModelService();
         OptimizationModelBundle model = optimizationModelService.createOptimizationModelBundle(baseScaledStats, defaultStatIncrease, statBoundsConfiguration, defaultSelectCount,
-                damageUptimeParameter);
+                damageUptimeParameter, defaultOptimizationHint);
 
         /*
         Call Solver

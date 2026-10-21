@@ -76,7 +76,7 @@ public class ConsolePrint {
 
 
         System.out.println("\nSolver");
-        System.out.printf("Objective Bound Rate: %.2f%%\n", result.scaledObjective() / result.bestObjectiveBound());
+        System.out.printf("Objective Bound Rate: %.2f%%\n", 100 * result.scaledObjective() / result.bestObjectiveBound());
         System.out.printf("Wall Time (s): %f\n", result.wallTimeSeconds());
     }
 
