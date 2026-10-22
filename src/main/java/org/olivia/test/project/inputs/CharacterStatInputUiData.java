@@ -1,0 +1,17 @@
+package org.olivia.test.project.inputs;
+
+import java.util.List;
+
+public record CharacterStatInputUiData(String characterSheetAttack, String physicalAdditionalAttackPower, String elementalAdditionalAttackPower,
+                                       String physicalAdditionalDamageBonus, String elementalAdditionalDamageBonus, List<SourceRow> attackPowerUpSources,
+                                       List<SourceRow> statusAttackPowerUpSources, List<SourceRow> criticalRateSources, List<SourceRow> criticalDamageSources) {
+    public CharacterStatInputUiData {
+        attackPowerUpSources = List.copyOf(attackPowerUpSources);
+        statusAttackPowerUpSources = List.copyOf(statusAttackPowerUpSources);
+        criticalRateSources = List.copyOf(criticalRateSources);
+        criticalDamageSources = List.copyOf(criticalDamageSources);
+    }
+
+    public record SourceRow(String source, String percent) {
+    }
+}

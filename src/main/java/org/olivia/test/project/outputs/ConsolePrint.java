@@ -34,12 +34,6 @@ public class ConsolePrint {
 
     public void printOutput() {
 
-        System.out.println("Debug Input Stats:");
-        System.out.println(userInput.getSolverSettingsInputDto());
-        System.out.println(userInput.getUptimeAssumptionsInputDto());
-        System.out.println(userInput.getCriticalBoundsInputDto());
-        System.out.println(userInput.getCharacterStatInputDto());
-
         for (OptimizationResult result : runResult.solutions()) {
             printSolution(result);
         }
