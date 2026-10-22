@@ -56,6 +56,7 @@ public class OptimizationSolverService {
             CpSolver solver = new CpSolver();
             solver.getParameters().setMaxTimeInSeconds(solverConfiguration.timeLimit());
             solver.getParameters().setNumSearchWorkers(solverConfiguration.workerCount());
+            solver.getParameters().setLogSearchProgress(false);
 
             CpSolverStatus status = solver.solve(bundle.model());
             if (status != CpSolverStatus.OPTIMAL && status != CpSolverStatus.FEASIBLE) {

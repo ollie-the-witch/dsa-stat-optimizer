@@ -19,7 +19,7 @@ public record UserInputsDto(SolverSettingsInputDto solverSettingsInputDto, Chara
         AssumptionsInputDto assumptionsInputDto = new AssumptionsInputDto(10, 80);
         CharacterStatInputDto characterStatInputDto = getCharacterStatInput();
         CriticalBoundsInputDto criticalBoundsInputDto = new CriticalBoundsInputDto(10d, 100d);
-        SolverSettingsInputDto solverSettingsInputDto = new SolverSettingsInputDto(5, 30, 8);
+        SolverSettingsInputDto solverSettingsInputDto = new SolverSettingsInputDto(1, 30, 8);
 
         return new UserInputsDto(solverSettingsInputDto, characterStatInputDto, criticalBoundsInputDto, assumptionsInputDto);
     }
