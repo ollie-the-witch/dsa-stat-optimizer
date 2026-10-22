@@ -12,8 +12,5 @@ public class MainApp {
         SwingUtilities.invokeLater(() -> new OptimizerWindow().setVisible(true));
 
 
-        //OptimizerOrchestrator orchestrator = new OptimizerOrchestrator();
-        //Inputs inputs = orchestrator.loadInput();
-        //orchestrator.solveOptimizationProblem(inputs);
     }
 }
