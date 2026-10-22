@@ -3,18 +3,16 @@ package org.olivia.test.project.data;
 import org.olivia.test.project.data.config.OptimizationConfigurations;
 import org.olivia.test.project.data.enumerations.StatVariable;
 import org.olivia.test.project.inputs.dto.CharacterStatInputDto;
-import org.olivia.test.project.inputs.dto.UserInputsDto;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public record BaseScaledStats(Map<StatVariable, Integer> baseStats) {
 
-    public static BaseScaledStats calculateBaseStats(UserInputsDto userInputsDto) {
+    public static BaseScaledStats calculateBaseStats(CharacterStatInputDto characterStatInputDto) {
 
         int scale = OptimizationConfigurations.getScale();
 
-        CharacterStatInputDto characterStatInputDto = userInputsDto.characterStatInputDto();
         int totalAttack = characterStatInputDto.characterSheetAttack();
         double totalAttackUp = characterStatInputDto.sumOptimizationAttackPowerUp();
         int baseAttack = (int) Math.round(totalAttack / (1 + totalAttackUp / 100));

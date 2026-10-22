@@ -6,7 +6,7 @@ import org.olivia.test.project.data.StatusUptimeParameters;
 import org.olivia.test.project.data.config.OptimizationConfigurations;
 import org.olivia.test.project.data.enumerations.EquipmentSlots;
 import org.olivia.test.project.data.enumerations.StatVariable;
-import org.olivia.test.project.inputs.dto.UserInputsDto;
+import org.olivia.test.project.inputs.Inputs;
 import org.olivia.test.project.optimizationSolver.OptimizationResult;
 import org.olivia.test.project.optimizationSolver.OptimizationRunResult;
 
@@ -16,18 +16,16 @@ import java.util.stream.Collectors;
 
 public class ConsolePrint {
     private final OptimizationRunResult runResult;
-    private final UserInputsDto userInput;
-    private final BaseScaledStats baseScaledStats;
+    private final Inputs userInput;
     private final StatusDamageBonus statusDamageBonus;
     private final StatusUptimeParameters statusUptimeParameters;
 
-    public ConsolePrint(UserInputsDto userInput,
+    public ConsolePrint(Inputs userInput,
             BaseScaledStats baseScaledStats,
             StatusUptimeParameters statusUptimeParameters,
             StatusDamageBonus statusDamageBonus,
             OptimizationRunResult runResult) {
         this.userInput = Objects.requireNonNull(userInput);
-        this.baseScaledStats = Objects.requireNonNull(baseScaledStats);
         this.statusUptimeParameters = Objects.requireNonNull(statusUptimeParameters);
         this.statusDamageBonus = Objects.requireNonNull(statusDamageBonus);
         this.runResult = Objects.requireNonNull(runResult);
@@ -37,10 +35,10 @@ public class ConsolePrint {
     public void printOutput() {
 
         System.out.println("Debug Input Stats:");
-        System.out.println(userInput.solverSettingsInputDto());
-        System.out.println(userInput.assumptionsInputDto());
-        System.out.println(userInput.criticalBoundsInputDto());
-        System.out.println(userInput.characterStatInputDto());
+        System.out.println(userInput.getSolverSettingsInputDto());
+        System.out.println(userInput.getUptimeAssumptionsInputDto());
+        System.out.println(userInput.getCriticalBoundsInputDto());
+        System.out.println(userInput.getCharacterStatInputDto());
 
         for (OptimizationResult result : runResult.solutions()) {
             printSolution(result);
