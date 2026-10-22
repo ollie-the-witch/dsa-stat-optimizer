@@ -14,8 +14,9 @@ import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
+
 public class OptimizerWindow extends JFrame {
-    private final Inputs inputs = OptimizerOrchestrator.loadInput();
+    private final Inputs defaultInputs = OptimizerOrchestrator.loadInput();
     private final InputService inputService = new InputService();
     private final FormFields form;
     private final JButton optimizeButton = new JButton("Optimize");
@@ -23,42 +24,32 @@ public class OptimizerWindow extends JFrame {
 
     public OptimizerWindow() {
         super("Upgrade Optimizer");
-        form = createFormFields(inputs.getCharacterStatInputDto());
-        setContentPane(createWindowContent(form));
+        form = createFormFields(defaultInputs.getCharacterStatInputDto());
+        setContentPane(createWindowContent(form, defaultInputs.getCharacterStatInputDto()));
         configureWindow();
         optimizeButton.addActionListener(event -> handleOptimize());
     }
 
-    private static List<CharacterStatInputUiData.SourceRow> attackPowerUpRows(CharacterStatInputDto defaults) {
-        return defaults.attackPowerUpSources().stream().map(source -> new CharacterStatInputUiData.SourceRow(source.source(), Double.toString(source.percent()))).toList();
-    }
-
-    private static List<CharacterStatInputUiData.SourceRow> statusAttackPowerUpRows(CharacterStatInputDto defaults) {
-        return defaults.statusAttackPower().statusAttackPowerUpSources().stream().map(source -> new CharacterStatInputUiData.SourceRow(source.source(), Double.toString(source.percent()))).toList();
-    }
-
-    private static List<CharacterStatInputUiData.SourceRow> criticalRateRows(CharacterStatInputDto defaults) {
-        return defaults.criticalRateSources().stream().map(source -> new CharacterStatInputUiData.SourceRow(source.source(), Double.toString(source.percent()))).toList();
-    }
-
-    private static List<CharacterStatInputUiData.SourceRow> criticalDamageRows(CharacterStatInputDto defaults) {
-        return defaults.criticalDamageSources().stream().map(source -> new CharacterStatInputUiData.SourceRow(source.source(), Double.toString(source.percent()))).toList();
-    }
-
-    private static SourceRowsPanel sourceRows(String title,
-            List<CharacterStatInputUiData.SourceRow> defaults) {
-        return new SourceRowsPanel(title, defaults);
-    }
 
     private static JTextField textField(Object value) {
         return new JTextField(String.valueOf(value), 12);
     }
 
     private static JPanel inputRow(String label,
-            JTextField field) {
+            JTextField field,
+            Object defaultValue) {
+        String defaultText = String.valueOf(defaultValue);
+
+        JButton resetButton = new JButton("Reset");
+        resetButton.addActionListener(event -> field.setText(defaultText));
+
+        JPanel fieldAndReset = new JPanel(new BorderLayout(4, 0));
+        fieldAndReset.add(field, BorderLayout.CENTER);
+        fieldAndReset.add(resetButton, BorderLayout.EAST);
+
         JPanel row = new JPanel(new BorderLayout(12, 0));
         row.add(new JLabel(label), BorderLayout.CENTER);
-        row.add(field, BorderLayout.EAST);
+        row.add(fieldAndReset, BorderLayout.EAST);
         row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 32));
         return row;
     }
@@ -76,20 +67,29 @@ public class OptimizerWindow extends JFrame {
     }
 
     private FormFields createFormFields(CharacterStatInputDto defaults) {
-        return new FormFields(textField(defaults.characterSheetAttack()), textField(defaults.statusAttackPower().physicalAdditionalAttackPower()), textField(defaults.statusAttackPower().elementalAdditionalAttackPower()), textField(defaults.statusAdditionalDamageBonus().physicalAdditionalDamageBonus()), textField(defaults.statusAdditionalDamageBonus().elementalAdditionalDamageBonus()), sourceRows("Attack Power Up Sources", attackPowerUpRows(defaults)), sourceRows("Status Attack Power Up", statusAttackPowerUpRows(defaults)), sourceRows("Critical Rate Sources", criticalRateRows(defaults)), sourceRows("Critical Damage Sources", criticalDamageRows(defaults)));
+        return new FormFields(textField(defaults.characterSheetAttack()),
+                textField(defaults.statusAttackPower().physicalAdditionalAttackPower()),
+                textField(defaults.statusAttackPower().elementalAdditionalAttackPower()),
+                textField(defaults.statusAdditionalDamageBonus().physicalAdditionalDamageBonus()),
+                textField(defaults.statusAdditionalDamageBonus().elementalAdditionalDamageBonus()),
+                CharacterDataUISection.sourceRows("Attack Power Up Sources", CharacterDataUISection.attackPowerUpRows(defaults)),
+                CharacterDataUISection.sourceRows("Status Attack Power Up", CharacterDataUISection.statusAttackPowerUpRows(defaults)),
+                CharacterDataUISection.sourceRows("Critical Rate Sources", CharacterDataUISection.criticalRateRows(defaults)),
+                CharacterDataUISection.sourceRows("Critical Damage Sources", CharacterDataUISection.criticalDamageRows(defaults)));
     }
 
-    private JPanel createWindowContent(FormFields fields) {
+    private JPanel createWindowContent(FormFields fields,
+            CharacterStatInputDto defaults) {
         JPanel sections = new JPanel();
         sections.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
         sections.setLayout(new BoxLayout(sections, BoxLayout.Y_AXIS));
-        sections.add(createCharacterStatsSection(fields));
+        sections.add(CharacterDataUISection.createCharacterStatsSection(fields, defaults));
         sections.add(Box.createVerticalStrut(8));
-        sections.add(createAttackPowerSection(fields));
+        sections.add(CharacterDataUISection.createAttackPowerSection(fields));
         sections.add(Box.createVerticalStrut(8));
-        sections.add(createCriticalStatsSection(fields));
+        sections.add(CharacterDataUISection.createCriticalStatsSection(fields));
         sections.add(Box.createVerticalStrut(8));
-        sections.add(createAdditionalDamageSection(fields));
+        sections.add(CharacterDataUISection.createAdditionalDamageSection(fields, defaults));
 
         JPanel footer = new JPanel(new BorderLayout(8, 8));
         footer.setBorder(BorderFactory.createEmptyBorder(8, 12, 12, 12));
@@ -102,22 +102,6 @@ public class OptimizerWindow extends JFrame {
         return content;
     }
 
-    private JPanel createCharacterStatsSection(FormFields fields) {
-        return createSection("Character Stats", inputRow("Character-sheet attack", fields.attack()), inputRow("Physical additional attack", fields.physicalAttack()), inputRow("Elemental additional attack", fields.elementalAttack()));
-    }
-
-    private JPanel createAttackPowerSection(FormFields fields) {
-        return createSection("Attack Power Up", fields.attackPowerUpSources(), fields.statusAttackPowerUpSources());
-    }
-
-    private JPanel createCriticalStatsSection(FormFields fields) {
-        return createSection("Critical Stats", fields.criticalRateSources(), fields.criticalDamageSources());
-    }
-
-    private JPanel createAdditionalDamageSection(FormFields fields) {
-        return createSection("Additional Damage Bonus", inputRow("Physical additional damage bonus (%)", fields.physicalAdditionalDamageBonus()), inputRow("Elemental additional damage bonus (%)", fields.elementalAdditionalDamageBonus()));
-    }
-
     private void configureWindow() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setMinimumSize(new Dimension(560, 680));
@@ -128,14 +112,14 @@ public class OptimizerWindow extends JFrame {
     private void handleOptimize() {
         final OptimizerOrchestrator orchestrator;
         try {
-            inputService.readCharacterStatInputDto(readCharacterStatUiData(), inputs);
+            inputService.readCharacterStatInputDto(CharacterDataUISection.readCharacterStatUiData(form), defaultInputs);
 
             System.out.println("Debug Input Stats:");
-            System.out.println(inputs.getSolverSettingsInputDto());
-            System.out.println(inputs.getUptimeAssumptionsInputDto());
-            System.out.println(inputs.getCriticalBoundsInputDto());
-            System.out.println(inputs.getCharacterStatInputDto());
-            orchestrator = new OptimizerOrchestrator(inputs);
+            System.out.println(defaultInputs.getSolverSettingsInputDto());
+            System.out.println(defaultInputs.getUptimeAssumptionsInputDto());
+            System.out.println(defaultInputs.getCriticalBoundsInputDto());
+            System.out.println(defaultInputs.getCharacterStatInputDto());
+            orchestrator = new OptimizerOrchestrator(defaultInputs);
         } catch (IllegalArgumentException exception) {
             showInputError(exception.getMessage());
             return;
@@ -156,7 +140,7 @@ public class OptimizerWindow extends JFrame {
                 optimizeButton.setEnabled(true);
                 try {
                     OptimizationRunResult result = get();
-                    orchestrator.printResultToConsole(inputs, result);
+                    orchestrator.printResultToConsole(defaultInputs, result);
                     statusLabel.setText("Optimization complete. Results printed to the console.");
                 } catch (InterruptedException exception) {
                     Thread.currentThread().interrupt();
@@ -174,12 +158,73 @@ public class OptimizerWindow extends JFrame {
         }.execute();
     }
 
-    private CharacterStatInputUiData readCharacterStatUiData() {
-        return new CharacterStatInputUiData(form.attack().getText(), form.physicalAttack().getText(), form.elementalAttack().getText(), form.physicalAdditionalDamageBonus().getText(), form.elementalAdditionalDamageBonus().getText(), form.attackPowerUpSources().readRows(), form.statusAttackPowerUpSources().readRows(), form.criticalRateSources().readRows(), form.criticalDamageSources().readRows());
-    }
 
     private void showInputError(String message) {
         JOptionPane.showMessageDialog(this, message == null ? "An unexpected error occurred." : message, "Input or optimization error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private static class CharacterDataUISection {
+
+        private static CharacterStatInputUiData readCharacterStatUiData(FormFields form) {
+            return new CharacterStatInputUiData(form.attack().getText(),
+                    form.physicalAttack().getText(),
+                    form.elementalAttack().getText(),
+                    form.physicalAdditionalDamageBonus().getText(),
+                    form.elementalAdditionalDamageBonus().getText(),
+                    form.attackPowerUpSources().readRows(),
+                    form.statusAttackPowerUpSources().readRows(),
+                    form.criticalRateSources().readRows(),
+                    form.criticalDamageSources().readRows());
+        }
+
+        private static JPanel createCharacterStatsSection(FormFields fields,
+                CharacterStatInputDto defaults) {
+            return createSection("Character Stats",
+                    inputRow("Character-sheet attack", fields.attack(), defaults.characterSheetAttack()),
+                    inputRow("Physical additional attack", fields.physicalAttack(), defaults.statusAttackPower().physicalAdditionalAttackPower()),
+                    inputRow("Elemental additional attack", fields.elementalAttack(), defaults.statusAttackPower().elementalAdditionalAttackPower()));
+        }
+
+        private static JPanel createAttackPowerSection(FormFields fields) {
+            return createSection("Attack Power Up", fields.attackPowerUpSources(), fields.statusAttackPowerUpSources());
+        }
+
+        private static JPanel createCriticalStatsSection(FormFields fields) {
+            return createSection("Critical Stats", fields.criticalRateSources(), fields.criticalDamageSources());
+        }
+
+        private static JPanel createAdditionalDamageSection(FormFields fields,
+                CharacterStatInputDto defaults) {
+            return createSection("Additional Damage Bonus",
+                    inputRow("Physical additional damage bonus (%)",
+                            fields.physicalAdditionalDamageBonus(),
+                            defaults.statusAdditionalDamageBonus().physicalAdditionalDamageBonus()),
+                    inputRow("Elemental additional damage bonus (%)",
+                            fields.elementalAdditionalDamageBonus(),
+                            defaults.statusAdditionalDamageBonus().elementalAdditionalDamageBonus()));
+        }
+
+        private static List<CharacterStatInputUiData.SourceRow> attackPowerUpRows(CharacterStatInputDto defaults) {
+            return defaults.attackPowerUpSources().stream().map(source -> new CharacterStatInputUiData.SourceRow(source.source(), Double.toString(source.percent()))).toList();
+        }
+
+        private static List<CharacterStatInputUiData.SourceRow> statusAttackPowerUpRows(CharacterStatInputDto defaults) {
+            return defaults.statusAttackPower().statusAttackPowerUpSources().stream().map(source -> new CharacterStatInputUiData.SourceRow(source.source(),
+                    Double.toString(source.percent()))).toList();
+        }
+
+        private static List<CharacterStatInputUiData.SourceRow> criticalRateRows(CharacterStatInputDto defaults) {
+            return defaults.criticalRateSources().stream().map(source -> new CharacterStatInputUiData.SourceRow(source.source(), Double.toString(source.percent()))).toList();
+        }
+
+        private static List<CharacterStatInputUiData.SourceRow> criticalDamageRows(CharacterStatInputDto defaults) {
+            return defaults.criticalDamageSources().stream().map(source -> new CharacterStatInputUiData.SourceRow(source.source(), Double.toString(source.percent()))).toList();
+        }
+
+        private static SourceRowsPanel sourceRows(String title,
+                List<CharacterStatInputUiData.SourceRow> defaults) {
+            return new SourceRowsPanel(title, defaults);
+        }
     }
 
     private record FormFields(JTextField attack, JTextField physicalAttack, JTextField elementalAttack, JTextField physicalAdditionalDamageBonus,
