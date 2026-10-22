@@ -9,7 +9,6 @@ import org.olivia.test.project.data.config.OptimizationHint;
 import org.olivia.test.project.data.config.SelectCount;
 import org.olivia.test.project.data.config.SolverConfiguration;
 import org.olivia.test.project.data.config.StatLimitConfiguration;
-import org.olivia.test.project.inputs.InputService;
 import org.olivia.test.project.inputs.dto.UserInputsDto;
 import org.olivia.test.project.optimizationModel.OptimizationModelBundle;
 import org.olivia.test.project.optimizationModel.OptimizationModelService;
@@ -19,17 +18,29 @@ import org.olivia.test.project.outputs.ConsolePrint;
 
 public class OptimizerOrchestrator {
 
+    public OptimizerOrchestrator() {
+    }
 
-    public static void solveOptimizationProblem() {
+    public UserInputsDto readAndLoadInputInput(){
+
+        /*
+        Things to read:
+        - User Inputs for character stats, uptime assumptions, armor Bonus
+        - Stat Locks
+        - Stat Increments
+        - Solver settings, critical bounds
+         */
+
+        return UserInputsDto.createSampleInput();
+    }
+
+    public void solveOptimizationProblem(UserInputsDto userInput) {
         Loader.loadNativeLibraries();
 
         /*
         Get Inputs
          */
 
-        InputService inputService = new InputService();
-
-        UserInputsDto userInput = inputService.readInputMock();
         BaseScaledStats baseScaledStats = BaseScaledStats.calculateBaseStats(userInput);
         StatusUptimeParameters damageUptimeParameter = StatusUptimeParameters.damageUptimeParameter(userInput);
         StatLimitConfiguration statBoundsConfiguration = StatLimitConfiguration.statBoundsConfiguration(StatLimitConfiguration.getDefaultCriticalCap(), userInput);
