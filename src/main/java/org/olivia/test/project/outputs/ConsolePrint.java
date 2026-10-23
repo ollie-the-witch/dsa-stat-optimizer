@@ -6,41 +6,47 @@ import org.olivia.test.project.data.StatusUptimeParameters;
 import org.olivia.test.project.data.config.OptimizationConfigurations;
 import org.olivia.test.project.data.enumerations.EquipmentSlots;
 import org.olivia.test.project.data.enumerations.StatVariable;
-import org.olivia.test.project.inputs.dto.UserInputsDto;
+import org.olivia.test.project.inputs.Inputs;
 import org.olivia.test.project.optimizationSolver.OptimizationResult;
+import org.olivia.test.project.optimizationSolver.OptimizationRunResult;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ConsolePrint {
-    private final OptimizationResult result;
-    private final UserInputsDto userInput;
-    private final BaseScaledStats baseScaledStats;
+    private final OptimizationRunResult runResult;
+    private final Inputs userInput;
     private final StatusDamageBonus statusDamageBonus;
     private final StatusUptimeParameters statusUptimeParameters;
 
-    public ConsolePrint(UserInputsDto userInput,
+    public ConsolePrint(Inputs userInput,
             BaseScaledStats baseScaledStats,
             StatusUptimeParameters statusUptimeParameters,
             StatusDamageBonus statusDamageBonus,
-            OptimizationResult result) {
+            OptimizationRunResult runResult) {
         this.userInput = Objects.requireNonNull(userInput);
-        this.baseScaledStats = Objects.requireNonNull(baseScaledStats);
         this.statusUptimeParameters = Objects.requireNonNull(statusUptimeParameters);
         this.statusDamageBonus = Objects.requireNonNull(statusDamageBonus);
-        this.result = Objects.requireNonNull(result);
+        this.runResult = Objects.requireNonNull(runResult);
 
     }
 
     public void printOutput() {
 
-        System.out.println("Debug Input Stats:");
-        System.out.println(userInput.solverSettingsInputDto());
-        System.out.println(userInput.assumptionsInputDto());
-        System.out.println(userInput.criticalBoundsInputDto());
-        System.out.println(userInput.characterStatInputDto());
+        for (OptimizationResult result : runResult.solutions()) {
+            printSolution(result);
+        }
 
+        System.out.printf("\nReturned %d distinct final-stat outcome(s) out of %d requested.\n", runResult.solutions().size(), runResult.requestedResultCount());
+        System.out.println(runResult.stopReason());
+        if (runResult.solutions().stream().anyMatch(result -> !result.solverStatus().equals("OPTIMAL"))) {
+            System.out.println("Note: results are sorted by objective among outcomes found, but global ranking is not guaranteed when a solve is only FEASIBLE.");
+        }
+    }
+
+    private void printSolution(OptimizationResult result) {
+        System.out.printf("\n==================== SOLUTION RANK %d ====================\n", result.rank());
         System.out.printf("Solver Status: %s\n", result.solverStatus());
 
         System.out.println("\nFinal Stats");
@@ -63,7 +69,7 @@ public class ConsolePrint {
             StatVariable mainStat = result.mainStats().get(slot);
             List<StatVariable> subStat = result.subStats().get(slot);
             String subStatList = subStat.stream().map(s -> s.alias).collect(Collectors.joining(", "));
-            System.out.printf("%-15s: MainSlot[%s], SubSlot[%s]\n", slot.alias, mainStat.alias, subStatList);
+            System.out.printf("%-15s: MainSlot [%s], SubSlot [%s]\n", slot.alias, mainStat.alias, subStatList);
         }
 
         System.out.println("\nRune Choices");
@@ -72,7 +78,7 @@ public class ConsolePrint {
         }
 
         System.out.println("\nEffective Damage Calculations");
-        printDamage();
+        printDamage(result);
 
 
         System.out.println("\nSolver");
@@ -85,10 +91,12 @@ public class ConsolePrint {
         return String.format("%s [%.2f%% Physical, %.2f%% Elemental]", summary, statusUptimeParameters.physicalStatusUptime(), statusUptimeParameters.elementalStatusUptime());
     }
 
-    private void printDamage() {
+    private void printDamage(OptimizationResult result) {
         DamageCalculator damageCalculator = new DamageCalculator();
 
-        DamageCalculator.DamageCalculatorPacket defaultUptimePacket = new DamageCalculator.DamageCalculatorPacket(result.finalStats(), userInput, statusUptimeParameters,
+        DamageCalculator.DamageCalculatorPacket defaultUptimePacket = new DamageCalculator.DamageCalculatorPacket(result.finalStats(),
+                userInput,
+                statusUptimeParameters,
                 statusDamageBonus);
         System.out.printf("%-50s: %.3f\n", formatDamageString("Uptime Factored", statusUptimeParameters), damageCalculator.calculateDamage(defaultUptimePacket));
 
@@ -97,12 +105,16 @@ public class ConsolePrint {
         System.out.printf("%-50s: %.3f\n", formatDamageString("No Uptime Factored", statusUptimeParameters), damageCalculator.calculateDamage(noUptimePacket));
 
         StatusUptimeParameters physicalUptime = new StatusUptimeParameters(100, 0);
-        DamageCalculator.DamageCalculatorPacket physicalUptimePacket = new DamageCalculator.DamageCalculatorPacket(result.finalStats(), userInput, physicalUptime,
+        DamageCalculator.DamageCalculatorPacket physicalUptimePacket = new DamageCalculator.DamageCalculatorPacket(result.finalStats(),
+                userInput,
+                physicalUptime,
                 statusDamageBonus);
         System.out.printf("%-50s: %.3f\n", formatDamageString("Physical Uptime Only", statusUptimeParameters), damageCalculator.calculateDamage(physicalUptimePacket));
 
         StatusUptimeParameters elementalUptime = new StatusUptimeParameters(0, 100);
-        DamageCalculator.DamageCalculatorPacket elementalUptimePacket = new DamageCalculator.DamageCalculatorPacket(result.finalStats(), userInput, elementalUptime,
+        DamageCalculator.DamageCalculatorPacket elementalUptimePacket = new DamageCalculator.DamageCalculatorPacket(result.finalStats(),
+                userInput,
+                elementalUptime,
                 statusDamageBonus);
         System.out.printf("%-50s: %.3f\n", formatDamageString("Elemental Uptime Only", statusUptimeParameters), damageCalculator.calculateDamage(elementalUptimePacket));
 

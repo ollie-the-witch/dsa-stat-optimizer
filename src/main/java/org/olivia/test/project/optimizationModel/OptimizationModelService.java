@@ -170,12 +170,10 @@ public class OptimizationModelService {
         return finalStats;
     }
 
-    private static void addSelectionHints(
-            CpModel model,
+    private static void addSelectionHints(CpModel model,
             Map<StatVariable, BoolVar> choicesByStat,
             Set<StatVariable> desiredStats,
-            int selectionCount
-    ) {
+            int selectionCount) {
         Set<StatVariable> hintedSelected = EnumSet.noneOf(StatVariable.class);
 
         // Prefer desired stats that are available in this choice map.
@@ -248,25 +246,24 @@ public class OptimizationModelService {
         enforceSelectionCount(model, mainStatChoicesBySlot, mainStatCount);
         enforceSelectionCount(model, substatChoicesBySlot, subStatCount);
 
-
-
+        // Hard-lock every equipment slot to Attack Power Up.
         for (EquipmentSlots slot : EquipmentSlots.values()) {
-            addSelectionHints(
-                    model,
-                    mainStatChoicesBySlot.get(slot),
-                    hint.mainHint(),
-                    mainStatCount
-            );
-            addSelectionHints(
-                    model,
-                    substatChoicesBySlot.get(slot),
-                    hint.subStatHint(),
-                    subStatCount
-            );
+            // model.addEquality(mainStatChoicesBySlot.get(slot).get(StatVariable.ATTACK_POWER_UP), 1);
         }
 
+        /*
+        Add Hints for Main, Sub, and Runes
+         */
+        for (EquipmentSlots slot : EquipmentSlots.values()) {
+            addSelectionHints(model, mainStatChoicesBySlot.get(slot), hint.mainHint(), mainStatCount);
+            addSelectionHints(model, substatChoicesBySlot.get(slot), hint.subStatHint(), subStatCount);
+        }
         int slotCount = EquipmentSlots.values().length;
         Map<StatVariable, IntVar> runeCounts = createRuneCounts(model, statIncreases.runes(), slotCount);
+        for (var entry : runeCounts.entrySet()) {
+            int hintedCount = hint.runeHint().getOrDefault(entry.getKey(), 0);
+            model.addHint(entry.getValue(), hintedCount);
+        }
 
         /*
         Define each final stat as base + selected increments.

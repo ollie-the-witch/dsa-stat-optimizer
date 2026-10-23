@@ -1,9 +1,16 @@
 package org.olivia.test.project;
 
 
+import org.olivia.test.project.ui.OptimizerWindow;
+
+import javax.swing.*;
+
 public class MainApp {
     public static void main(String[] args) {
 
-        OptimizerOrchestrator.solveOptimizationProblem();
+
+        SwingUtilities.invokeLater(() -> new OptimizerWindow().setVisible(true));
+
+
     }
 }

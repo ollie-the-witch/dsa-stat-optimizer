@@ -85,8 +85,8 @@ public class OptimizationObjective {
         LongBounds statusWeightedBounds = sum(physicalWeightedBounds, elementalWeightedBounds);
 
         IntVar weightedStatusAttackVar = model.newIntVar(statusWeightedBounds.lower(), statusWeightedBounds.upper(), "uptime_weighted_status_attack");
-        model.addEquality(weightedStatusAttackVar, LinearExpr.newBuilder().addTerm(stats.get(PHYSICAL_ATTACK), physicalScaledUptime).addTerm(stats.get(ELEMENTAL_ATTACK),
-                elementalScaledUptime).build());
+        model.addEquality(weightedStatusAttackVar,
+                LinearExpr.newBuilder().addTerm(stats.get(PHYSICAL_ATTACK), physicalScaledUptime).addTerm(stats.get(ELEMENTAL_ATTACK), elementalScaledUptime).build());
 
         LongBounds positiveStatusAttackUpBounds = shiftPercentPositive(statusAttackUpLongBounds, UPTIME_SCALE);
         IntVar statusAttackUpFactor = model.newIntVar(positiveStatusAttackUpBounds.lower(), positiveStatusAttackUpBounds.upper(), "one_plus_t_scaled");
@@ -112,7 +112,11 @@ public class OptimizationObjective {
         Multiply Critical Rate and Critical Damage, then multiply the bounds by scale twice
         (since Q is the product of Critical Rate and Critical Damage which are both scaled)
          */
-        ProductTerm criticalProduct = addExactProduct(model, "critical_rate_times_damage", stats.get(CRITICAL_RATE), critRateLongBounds, stats.get(CRITICAL_DAMAGE),
+        ProductTerm criticalProduct = addExactProduct(model,
+                "critical_rate_times_damage",
+                stats.get(CRITICAL_RATE),
+                critRateLongBounds,
+                stats.get(CRITICAL_DAMAGE),
                 critDamageLongBounds);
 
         long scaleSquared = UPTIME_SCALE * UPTIME_SCALE;

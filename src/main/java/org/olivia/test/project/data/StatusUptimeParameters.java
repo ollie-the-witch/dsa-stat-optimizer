@@ -1,7 +1,7 @@
 package org.olivia.test.project.data;
 
 import org.olivia.test.project.data.config.OptimizationConfigurations;
-import org.olivia.test.project.inputs.dto.UserInputsDto;
+import org.olivia.test.project.inputs.dto.UptimeAssumptionsInputDto;
 
 /**
  * Record for passing information about damage uptime
@@ -10,8 +10,8 @@ import org.olivia.test.project.inputs.dto.UserInputsDto;
  * @param elementalStatusUptime
  */
 public record StatusUptimeParameters(double physicalStatusUptime, double elementalStatusUptime) {
-    public static StatusUptimeParameters damageUptimeParameter(UserInputsDto userInputsDto) {
-        return new StatusUptimeParameters(userInputsDto.assumptionsInputDto().physicalStatusUptime(), userInputsDto.assumptionsInputDto().elementalStatusUptime());
+    public static StatusUptimeParameters damageUptimeParameter(UptimeAssumptionsInputDto characterDataInputsDto) {
+        return new StatusUptimeParameters(characterDataInputsDto.physicalStatusUptime(), characterDataInputsDto.elementalStatusUptime());
     }
 
     public long physicalStatusUptimeScaledLong() {
