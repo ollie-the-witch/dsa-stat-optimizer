@@ -1,4 +1,4 @@
-package org.olivia.test.project.inputs;
+package org.olivia.test.project.inputs.ui;
 
 import java.util.List;
 

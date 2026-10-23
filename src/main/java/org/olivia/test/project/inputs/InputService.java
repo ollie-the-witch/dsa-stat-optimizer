@@ -5,22 +5,15 @@ import org.olivia.test.project.inputs.dto.CharacterStatInputDto;
 import org.olivia.test.project.inputs.dto.CriticalBoundsInputDto;
 import org.olivia.test.project.inputs.dto.SolverSettingsInputDto;
 import org.olivia.test.project.inputs.dto.UptimeAssumptionsInputDto;
+import org.olivia.test.project.inputs.ui.CharacterStatInputUiData;
+import org.olivia.test.project.inputs.ui.CriticalBoundsInputUiDto;
+import org.olivia.test.project.inputs.ui.SolverSettingsInputUiDto;
+import org.olivia.test.project.inputs.ui.UptimeAssumptionsInputUiData;
 
 import java.util.List;
 import java.util.stream.IntStream;
 
 public class InputService {
-
-    /*
-        Things to read:
-        - User Inputs for character stats,
-        - uptime assumptions
-        - armor Bonus
-        - Stat Locks
-        - Stat Increments
-        - critical bounds
-        - Solver settings,
-         */
 
     private static <T> List<T> readSourceRows(String label,
             List<CharacterStatInputUiData.SourceRow> rows,
@@ -106,21 +99,58 @@ public class InputService {
         return result;
     }
 
-    public UptimeAssumptionsInputDto readUptimeAssumptionsInputDto(Object uiData,
+    public UptimeAssumptionsInputDto readUptimeAssumptionsInputDto(UptimeAssumptionsInputUiData uiData,
             Inputs inputs) {
-        inputs.setUptimeAssumptionsInputDto(null);
+
+        if (uiData == null) {
+            throw new IllegalArgumentException("Uptime assumptions form data is required.");
+        }
+        if (inputs == null) {
+            throw new IllegalArgumentException("Inputs state is required.");
+        }
+
+        double physicalStatusUptime = parseNonNegativeDouble("Physical status uptime", uiData.physicalStatusUptime());
+        double elementalStatusUptime = parseNonNegativeDouble("Elemental status uptime", uiData.elementalStatusUptime());
+
+        UptimeAssumptionsInputDto result = new UptimeAssumptionsInputDto(physicalStatusUptime, elementalStatusUptime);
+
+        inputs.setUptimeAssumptionsInputDto(result);
         return inputs.getUptimeAssumptionsInputDto();
     }
 
-    public CriticalBoundsInputDto readCriticalBoundsInputDto(Object uiData,
+    public void readArmorBonusInputDto(){
+
+    }
+    public void readStatLocksInputDto(){
+
+    }
+    public void readStatIncrementInputDto(){
+
+    }
+
+    public CriticalBoundsInputDto readCriticalBoundsInputDto(CriticalBoundsInputUiDto uiData,
             Inputs inputs) {
-        inputs.setCriticalBoundsInputDto(null);
+
+        double minimum = parseNonNegativeDouble("Minimum Desired Critical Rate", uiData.minimum());
+        double maximum = parseNonNegativeDouble("Maximum Desired Critical Rate", uiData.maximum());
+        double cap = parseNonNegativeDouble("Hard Critical Rate Cap", uiData.cap());
+
+
+        CriticalBoundsInputDto result = new CriticalBoundsInputDto(minimum, maximum, cap);
+
+        inputs.setCriticalBoundsInputDto(result);
         return inputs.getCriticalBoundsInputDto();
     }
 
-    public SolverSettingsInputDto readSolverSettingsInputDto(Object uiData,
+    public SolverSettingsInputDto readSolverSettingsInputDto(SolverSettingsInputUiDto uiData,
             Inputs inputs) {
-        inputs.setSolverSettingsInputDto(null);
+
+        int resultCount = parseNonNegativeInt("Number of Results to Return", uiData.resultCount());
+        int timeLimit = parseNonNegativeInt("Optimizer Time Limit per Solution", uiData.timeLimit());
+        int workerCount = parseNonNegativeInt("Number of Workers", uiData.workerCount());
+
+        SolverSettingsInputDto result = new SolverSettingsInputDto(resultCount, timeLimit, workerCount);
+        inputs.setSolverSettingsInputDto(result);
         return inputs.getSolverSettingsInputDto();
     }
 

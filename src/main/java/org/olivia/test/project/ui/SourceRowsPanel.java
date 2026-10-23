@@ -1,6 +1,6 @@
 package org.olivia.test.project.ui;
 
-import org.olivia.test.project.inputs.CharacterStatInputUiData;
+import org.olivia.test.project.inputs.ui.CharacterStatInputUiData;
 
 import javax.swing.*;
 import java.awt.*;

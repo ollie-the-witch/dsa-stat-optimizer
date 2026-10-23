@@ -7,12 +7,14 @@ import java.util.Map;
 
 public record StatLimitConfiguration(Map<StatVariable, Integer> statCaps, Map<StatVariable, Integer> statLowerBounds, Map<StatVariable, Integer> statUpperBounds) {
     public static StatLimitConfiguration statBoundsConfiguration(CriticalBoundsInputDto criticalBoundsInputDto) {
-        Map<StatVariable, Integer> statCaps = Map.of(StatVariable.CRITICAL_RATE, criticalBoundsInputDto.cap());
 
 
+
+        Integer cap = (int) Math.round(criticalBoundsInputDto.cap() * (OptimizationConfigurations.getScale() / 100.0));
         Integer min = (int) Math.round(criticalBoundsInputDto.minimum() * (OptimizationConfigurations.getScale() / 100.0));
         Integer max = (int) Math.round(criticalBoundsInputDto.maximum() * (OptimizationConfigurations.getScale() / 100.0));
 
+        Map<StatVariable, Integer> statCaps = Map.of(StatVariable.CRITICAL_RATE, cap);
         Map<StatVariable, Integer> statLowerBounds = Map.of(StatVariable.CRITICAL_RATE, min);
 
         Map<StatVariable, Integer> statUpperBounds = Map.of(StatVariable.CRITICAL_RATE, max);

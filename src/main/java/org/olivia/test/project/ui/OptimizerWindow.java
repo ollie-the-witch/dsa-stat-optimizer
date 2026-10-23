@@ -1,6 +1,6 @@
 package org.olivia.test.project.ui;
 
-import org.olivia.test.project.inputs.CharacterStatInputUiData;
+import org.olivia.test.project.inputs.ui.CharacterStatInputUiData;
 import org.olivia.test.project.inputs.InputService;
 import org.olivia.test.project.inputs.Inputs;
 import org.olivia.test.project.inputs.dto.CharacterStatInputDto;
