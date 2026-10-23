@@ -250,9 +250,7 @@ public class OptimizerWindow extends JFrame {
 
         private static JPanel createGeneralAttackSection(CharacterDataForm fields,
                 CharacterStatInputDto defaults) {
-            return createSection("General Attack",
-                    inputRow("Character-sheet attack", fields.attack(), defaults.characterSheetAttack()),
-                    fields.attackPowerUpSources());
+            return createSection("General Attack", inputRow("Character-sheet attack", fields.attack(), defaults.characterSheetAttack()), fields.attackPowerUpSources());
         }
 
         private static JPanel createStatusAttackSection(CharacterDataForm fields,
