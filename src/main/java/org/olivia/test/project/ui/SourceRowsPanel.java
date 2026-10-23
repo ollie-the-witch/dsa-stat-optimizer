@@ -73,7 +73,9 @@ final class SourceRowsPanel extends JPanel {
 
         constraints.gridx = 3;
         constraints.weightx = 0;
+        constraints.ipadx = 72;
         rowPanel.add(row.percentField, constraints);
+        constraints.ipadx = 0;
 
         JButton removeButton = new JButton("Remove");
         removeButton.addActionListener(event -> {

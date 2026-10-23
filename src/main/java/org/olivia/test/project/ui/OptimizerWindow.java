@@ -55,14 +55,11 @@ public class OptimizerWindow extends JFrame {
         JButton resetButton = new JButton("Reset");
         resetButton.addActionListener(event -> field.setText(defaultText));
 
-        JPanel fieldAndReset = new JPanel(new BorderLayout(4, 0));
-        fieldAndReset.add(field, BorderLayout.CENTER);
-        fieldAndReset.add(resetButton, BorderLayout.EAST);
-
-        JPanel row = new JPanel(new BorderLayout(12, 0));
-        row.add(new JLabel(label), BorderLayout.CENTER);
-        row.add(fieldAndReset, BorderLayout.EAST);
-        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 32));
+        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        row.add(new JLabel(label));
+        row.add(field);
+        row.add(resetButton);
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, row.getPreferredSize().height));
         return row;
     }
 
@@ -70,9 +67,16 @@ public class OptimizerWindow extends JFrame {
             Component... components) {
         JPanel section = new JPanel();
         section.setBorder(BorderFactory.createTitledBorder(title));
-        section.setLayout(new BoxLayout(section, BoxLayout.Y_AXIS));
-        for (Component component : components) {
-            section.add(component);
+        section.setLayout(new GridBagLayout());
+        for (int row = 0; row < components.length; row++) {
+            GridBagConstraints constraints = new GridBagConstraints();
+            constraints.gridx = 0;
+            constraints.gridy = row;
+            constraints.weightx = 1;
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+            constraints.anchor = GridBagConstraints.WEST;
+            constraints.insets = new Insets(0, 0, row < components.length - 1 ? 4 : 0, 0);
+            section.add(components[row], constraints);
         }
         section.setAlignmentX(Component.LEFT_ALIGNMENT);
         return section;
@@ -107,7 +111,7 @@ public class OptimizerWindow extends JFrame {
                 textField(defaults.statusAttackPower().elementalAdditionalAttackPower()),
                 textField(defaults.statusAdditionalDamageBonus().physicalAdditionalDamageBonus()),
                 textField(defaults.statusAdditionalDamageBonus().elementalAdditionalDamageBonus()),
-                CharacterDataUISection.sourceRows("Attack Power Up Sources", CharacterDataUISection.attackPowerUpRows(defaults)),
+                CharacterDataUISection.sourceRows("Attack Power Up", CharacterDataUISection.attackPowerUpRows(defaults)),
                 CharacterDataUISection.sourceRows("Status Attack Power Up", CharacterDataUISection.statusAttackPowerUpRows(defaults)),
                 CharacterDataUISection.sourceRows("Critical Rate Sources", CharacterDataUISection.criticalRateRows(defaults)),
                 CharacterDataUISection.sourceRows("Critical Damage Sources", CharacterDataUISection.criticalDamageRows(defaults)));
@@ -135,9 +139,7 @@ public class OptimizerWindow extends JFrame {
         sections.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
         JPanel characterColumn = verticalPanel();
-        characterColumn.add(CharacterDataUISection.createCharacterStatsSection(characterFields, characterDefaults));
-        characterColumn.add(Box.createVerticalStrut(8));
-        characterColumn.add(CharacterDataUISection.createAttackPowerSection(characterFields));
+        characterColumn.add(CharacterDataUISection.createGeneralAttackSection(characterFields, characterDefaults));
         characterColumn.add(Box.createVerticalStrut(8));
         characterColumn.add(CharacterDataUISection.createCriticalStatsSection(characterFields));
 
@@ -147,6 +149,8 @@ public class OptimizerWindow extends JFrame {
         criticalAndSolverColumn.add(SolverSettingsUiSection.createSection(solverSettingsFields, defaults.getSolverSettingsInputDto()));
 
         JPanel uptimeColumn = verticalPanel();
+        uptimeColumn.add(CharacterDataUISection.createStatusAttackSection(characterFields, characterDefaults));
+        uptimeColumn.add(Box.createVerticalStrut(8));
         uptimeColumn.add(CharacterDataUISection.createAdditionalDamageSection(characterFields, characterDefaults));
         uptimeColumn.add(Box.createVerticalStrut(8));
         uptimeColumn.add(UptimeDataUiSection.createSection(uptimeFields, defaults.getUptimeAssumptionsInputDto()));
@@ -244,16 +248,19 @@ public class OptimizerWindow extends JFrame {
                     form.criticalDamageSources().readRows());
         }
 
-        private static JPanel createCharacterStatsSection(CharacterDataForm fields,
+        private static JPanel createGeneralAttackSection(CharacterDataForm fields,
                 CharacterStatInputDto defaults) {
-            return createSection("Character Stats",
+            return createSection("General Attack",
                     inputRow("Character-sheet attack", fields.attack(), defaults.characterSheetAttack()),
-                    inputRow("Physical additional attack", fields.physicalAttack(), defaults.statusAttackPower().physicalAdditionalAttackPower()),
-                    inputRow("Elemental additional attack", fields.elementalAttack(), defaults.statusAttackPower().elementalAdditionalAttackPower()));
+                    fields.attackPowerUpSources());
         }
 
-        private static JPanel createAttackPowerSection(CharacterDataForm fields) {
-            return createSection("Attack Power Up", fields.attackPowerUpSources(), fields.statusAttackPowerUpSources());
+        private static JPanel createStatusAttackSection(CharacterDataForm fields,
+                CharacterStatInputDto defaults) {
+            return createSection("Status Attack",
+                    inputRow("Physical additional attack", fields.physicalAttack(), defaults.statusAttackPower().physicalAdditionalAttackPower()),
+                    inputRow("Elemental additional attack", fields.elementalAttack(), defaults.statusAttackPower().elementalAdditionalAttackPower()),
+                    fields.statusAttackPowerUpSources());
         }
 
         private static JPanel createCriticalStatsSection(CharacterDataForm fields) {
