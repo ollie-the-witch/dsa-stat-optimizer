@@ -1,5 +1,8 @@
 package org.olivia.test.project.ui;
 
+import org.olivia.test.project.inputs.dto.CriticalBoundsInputDto;
+import org.olivia.test.project.inputs.dto.SolverSettingsInputDto;
+import org.olivia.test.project.inputs.dto.UptimeAssumptionsInputDto;
 import org.olivia.test.project.inputs.ui.CharacterStatInputUiData;
 import org.olivia.test.project.inputs.InputService;
 import org.olivia.test.project.inputs.Inputs;
@@ -21,14 +24,20 @@ import java.util.concurrent.ExecutionException;
 public class OptimizerWindow extends JFrame {
     private final Inputs defaultInputs = OptimizerOrchestrator.loadInput();
     private final InputService inputService = new InputService();
-    private final CharacterDataField form;
+    private final CharacterDataForm characterDataForm;
+    private final UptimeDataForm uptimeDataForm;
+    private final CriticalBoundsForm criticalBoundsForm;
+    private final SolverSettingsForm solverSettingsForm;
     private final JButton optimizeButton = new JButton("Optimize");
     private final JLabel statusLabel = new JLabel(" ");
 
     public OptimizerWindow() {
         super("Upgrade Optimizer");
-        form = createFormFields(defaultInputs.getCharacterStatInputDto());
-        setContentPane(createWindowContent(form, defaultInputs.getCharacterStatInputDto()));
+        characterDataForm = createFormFields(defaultInputs.getCharacterStatInputDto());
+        uptimeDataForm = createFormFields(defaultInputs.getUptimeAssumptionsInputDto());
+        criticalBoundsForm = createFormFields(defaultInputs.getCriticalBoundsInputDto());
+        solverSettingsForm = createFormFields(defaultInputs.getSolverSettingsInputDto());
+        setContentPane(createWindowContent(characterDataForm, defaultInputs));
         configureWindow();
         optimizeButton.addActionListener(event -> handleOptimize());
     }
@@ -69,8 +78,8 @@ public class OptimizerWindow extends JFrame {
         return section;
     }
 
-    private CharacterDataField createFormFields(CharacterStatInputDto defaults) {
-        return new CharacterDataField(textField(defaults.characterSheetAttack()),
+    private CharacterDataForm createFormFields(CharacterStatInputDto defaults) {
+        return new CharacterDataForm(textField(defaults.characterSheetAttack()),
                 textField(defaults.statusAttackPower().physicalAdditionalAttackPower()),
                 textField(defaults.statusAttackPower().elementalAdditionalAttackPower()),
                 textField(defaults.statusAdditionalDamageBonus().physicalAdditionalDamageBonus()),
@@ -81,18 +90,37 @@ public class OptimizerWindow extends JFrame {
                 CharacterDataUISection.sourceRows("Critical Damage Sources", CharacterDataUISection.criticalDamageRows(defaults)));
     }
 
-    private JPanel createWindowContent(CharacterDataField fields,
-            CharacterStatInputDto defaults) {
+    private UptimeDataForm createFormFields(UptimeAssumptionsInputDto defaults) {
+        return new UptimeDataForm(textField(defaults.physicalStatusUptime()),
+                textField(defaults.elementalStatusUptime()));
+    }
+
+    private CriticalBoundsForm createFormFields(CriticalBoundsInputDto defaults) {
+        return new CriticalBoundsForm(textField(defaults.minimum()),
+                textField(defaults.maximum()),
+                textField(defaults.cap()));
+    }
+
+    private SolverSettingsForm createFormFields(SolverSettingsInputDto defaults) {
+        return new SolverSettingsForm(textField(defaults.resultCount()),
+                textField(defaults.timeLimit()),
+                textField(defaults.workerCount()));
+    }
+
+    private JPanel createWindowContent(CharacterDataForm fields,
+            Inputs defaults) {
+
+        CharacterStatInputDto characterStatInputDefaults = defaults.getCharacterStatInputDto();
         JPanel sections = new JPanel();
         sections.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
         sections.setLayout(new BoxLayout(sections, BoxLayout.Y_AXIS));
-        sections.add(CharacterDataUISection.createCharacterStatsSection(fields, defaults));
+        sections.add(CharacterDataUISection.createCharacterStatsSection(fields, characterStatInputDefaults));
         sections.add(Box.createVerticalStrut(8));
         sections.add(CharacterDataUISection.createAttackPowerSection(fields));
         sections.add(Box.createVerticalStrut(8));
         sections.add(CharacterDataUISection.createCriticalStatsSection(fields));
         sections.add(Box.createVerticalStrut(8));
-        sections.add(CharacterDataUISection.createAdditionalDamageSection(fields, defaults));
+        sections.add(CharacterDataUISection.createAdditionalDamageSection(fields, characterStatInputDefaults));
 
         JPanel footer = new JPanel(new BorderLayout(8, 8));
         footer.setBorder(BorderFactory.createEmptyBorder(8, 12, 12, 12));
@@ -115,10 +143,10 @@ public class OptimizerWindow extends JFrame {
     private void handleOptimize() {
         final OptimizerOrchestrator orchestrator;
         try {
-            inputService.readCharacterStatInputDto(CharacterDataUISection.readCharacterStatUiData(form), defaultInputs);
-            inputService.readUptimeAssumptionsInputDto(UptimeDataUiSection.readUptimeDataUiData(form), defaultInputs);
-            inputService.readCriticalBoundsInputDto(CriticalBoundsUiSection.readCriticalBoundsUiData(form),defaultInputs);
-            inputService.readSolverSettingsInputDto(SolverSettingsUiSection.readSolverSettingsUiData(form),defaultInputs);
+            inputService.readCharacterStatInputDto(CharacterDataUISection.readCharacterStatUiData(characterDataForm), defaultInputs);
+            inputService.readUptimeAssumptionsInputDto(UptimeDataUiSection.readUptimeDataUiData(characterDataForm), defaultInputs);
+            inputService.readCriticalBoundsInputDto(CriticalBoundsUiSection.readCriticalBoundsUiData(characterDataForm),defaultInputs);
+            inputService.readSolverSettingsInputDto(SolverSettingsUiSection.readSolverSettingsUiData(characterDataForm),defaultInputs);
 
             System.out.println("Debug Input Stats:");
             System.out.println(defaultInputs.getSolverSettingsInputDto());
@@ -171,7 +199,7 @@ public class OptimizerWindow extends JFrame {
 
     private static class CharacterDataUISection {
 
-        private static CharacterStatInputUiData readCharacterStatUiData(CharacterDataField form) {
+        private static CharacterStatInputUiData readCharacterStatUiData(CharacterDataForm form) {
             return new CharacterStatInputUiData(form.attack().getText(),
                     form.physicalAttack().getText(),
                     form.elementalAttack().getText(),
@@ -183,7 +211,7 @@ public class OptimizerWindow extends JFrame {
                     form.criticalDamageSources().readRows());
         }
 
-        private static JPanel createCharacterStatsSection(CharacterDataField fields,
+        private static JPanel createCharacterStatsSection(CharacterDataForm fields,
                 CharacterStatInputDto defaults) {
             return createSection("Character Stats",
                     inputRow("Character-sheet attack", fields.attack(), defaults.characterSheetAttack()),
@@ -191,15 +219,15 @@ public class OptimizerWindow extends JFrame {
                     inputRow("Elemental additional attack", fields.elementalAttack(), defaults.statusAttackPower().elementalAdditionalAttackPower()));
         }
 
-        private static JPanel createAttackPowerSection(CharacterDataField fields) {
+        private static JPanel createAttackPowerSection(CharacterDataForm fields) {
             return createSection("Attack Power Up", fields.attackPowerUpSources(), fields.statusAttackPowerUpSources());
         }
 
-        private static JPanel createCriticalStatsSection(CharacterDataField fields) {
+        private static JPanel createCriticalStatsSection(CharacterDataForm fields) {
             return createSection("Critical Stats", fields.criticalRateSources(), fields.criticalDamageSources());
         }
 
-        private static JPanel createAdditionalDamageSection(CharacterDataField fields,
+        private static JPanel createAdditionalDamageSection(CharacterDataForm fields,
                 CharacterStatInputDto defaults) {
             return createSection("Additional Damage Bonus",
                     inputRow("Physical additional damage bonus (%)",
@@ -234,25 +262,34 @@ public class OptimizerWindow extends JFrame {
     }
 
     private static class UptimeDataUiSection {
-        private static UptimeAssumptionsInputUiData readUptimeDataUiData(CharacterDataField form) {
+        private static UptimeAssumptionsInputUiData readUptimeDataUiData(CharacterDataForm form) {
             return null;
         }
     }
 
     private static class CriticalBoundsUiSection {
-        private static CriticalBoundsInputUiDto readCriticalBoundsUiData(CharacterDataField form) {
+        private static CriticalBoundsInputUiDto readCriticalBoundsUiData(CharacterDataForm form) {
             return null;
         }
     }
 
     private static class SolverSettingsUiSection {
-        private static SolverSettingsInputUiDto readSolverSettingsUiData(CharacterDataField form) {
+        private static SolverSettingsInputUiDto readSolverSettingsUiData(CharacterDataForm form) {
             return null;
         }
     }
 
-    private record CharacterDataField(JTextField attack, JTextField physicalAttack, JTextField elementalAttack, JTextField physicalAdditionalDamageBonus,
-                                      JTextField elementalAdditionalDamageBonus, SourceRowsPanel attackPowerUpSources, SourceRowsPanel statusAttackPowerUpSources,
-                                      SourceRowsPanel criticalRateSources, SourceRowsPanel criticalDamageSources) {
+    private record CharacterDataForm(JTextField attack, JTextField physicalAttack, JTextField elementalAttack, JTextField physicalAdditionalDamageBonus,
+                                     JTextField elementalAdditionalDamageBonus, SourceRowsPanel attackPowerUpSources, SourceRowsPanel statusAttackPowerUpSources,
+                                     SourceRowsPanel criticalRateSources, SourceRowsPanel criticalDamageSources) {
+    }
+
+    private record UptimeDataForm(JTextField physicalStatusUptime, JTextField elementalStatusUptime) {
+    }
+
+    private record CriticalBoundsForm(JTextField minimum, JTextField maximum, JTextField cap) {
+    }
+
+    private record SolverSettingsForm(JTextField resultCount, JTextField timeLimit, JTextField workerCount) {
     }
 }
