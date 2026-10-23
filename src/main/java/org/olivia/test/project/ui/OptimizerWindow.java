@@ -140,8 +140,6 @@ public class OptimizerWindow extends JFrame {
         characterColumn.add(CharacterDataUISection.createAttackPowerSection(characterFields));
         characterColumn.add(Box.createVerticalStrut(8));
         characterColumn.add(CharacterDataUISection.createCriticalStatsSection(characterFields));
-        characterColumn.add(Box.createVerticalStrut(8));
-        characterColumn.add(CharacterDataUISection.createAdditionalDamageSection(characterFields, characterDefaults));
 
         JPanel criticalAndSolverColumn = verticalPanel();
         criticalAndSolverColumn.add(CriticalBoundsUiSection.createSection(criticalBoundsFields, defaults.getCriticalBoundsInputDto()));
@@ -149,7 +147,10 @@ public class OptimizerWindow extends JFrame {
         criticalAndSolverColumn.add(SolverSettingsUiSection.createSection(solverSettingsFields, defaults.getSolverSettingsInputDto()));
 
         JPanel uptimeColumn = verticalPanel();
+        uptimeColumn.add(CharacterDataUISection.createAdditionalDamageSection(characterFields, characterDefaults));
+        uptimeColumn.add(Box.createVerticalStrut(8));
         uptimeColumn.add(UptimeDataUiSection.createSection(uptimeFields, defaults.getUptimeAssumptionsInputDto()));
+
         addColumn(sections, characterColumn, 0, 0, 1.4);
         addColumn(sections, uptimeColumn, 1, 0, 1);
         addColumn(sections, criticalAndSolverColumn, 2, 0, 1);

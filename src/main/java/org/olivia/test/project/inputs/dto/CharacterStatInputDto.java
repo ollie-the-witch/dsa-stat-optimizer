@@ -11,12 +11,15 @@ public record CharacterStatInputDto(int characterSheetAttack, List<AttackPowerUp
     public static CharacterStatInputDto defaultCharacterStatInput() {
         List<CharacterStatInputDto.AttackPowerUpSources> attackPowerUpSourcesList = List.of(new CharacterStatInputDto.AttackPowerUpSources("title", 11.6),
                 new CharacterStatInputDto.AttackPowerUpSources("karma", 15));
+
         List<CharacterStatInputDto.CriticalRateSources> criticalRateSourcesList = List.of(new CharacterStatInputDto.CriticalRateSources("character sheet", 32),
                 new CharacterStatInputDto.CriticalRateSources("awakening", 10),
                 new CharacterStatInputDto.CriticalRateSources("skills", 10));
         List<CharacterStatInputDto.CriticalDamageSources> criticalDamageSourcesList = List.of(new CharacterStatInputDto.CriticalDamageSources("character sheet", 82.3));
+
         CharacterStatInputDto.StatusAdditionalDamageBonus statusAdditionalDamageBonus = new CharacterStatInputDto.StatusAdditionalDamageBonus(15, 35);
-        CharacterStatInputDto.StatusAttackPower statusAttackPower = new CharacterStatInputDto.StatusAttackPower(100, 425, List.of());
+        List<CharacterStatInputDto.StatusAttackPowerUpSources> statusAttackPowerUpSourcesList = List.of(new CharacterStatInputDto.StatusAttackPowerUpSources("base", 0.0));
+        CharacterStatInputDto.StatusAttackPower statusAttackPower = new CharacterStatInputDto.StatusAttackPower(100, 425, statusAttackPowerUpSourcesList);
 
         return new CharacterStatInputDto(3757, attackPowerUpSourcesList, statusAttackPower, statusAdditionalDamageBonus, criticalRateSourcesList, criticalDamageSourcesList);
     }
