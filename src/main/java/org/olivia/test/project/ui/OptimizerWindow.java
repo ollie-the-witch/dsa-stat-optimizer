@@ -1,12 +1,12 @@
 package org.olivia.test.project.ui;
 
+import org.olivia.test.project.inputs.InputService;
+import org.olivia.test.project.inputs.Inputs;
+import org.olivia.test.project.inputs.dto.CharacterStatInputDto;
 import org.olivia.test.project.inputs.dto.CriticalBoundsInputDto;
 import org.olivia.test.project.inputs.dto.SolverSettingsInputDto;
 import org.olivia.test.project.inputs.dto.UptimeAssumptionsInputDto;
 import org.olivia.test.project.inputs.ui.CharacterStatInputUiData;
-import org.olivia.test.project.inputs.InputService;
-import org.olivia.test.project.inputs.Inputs;
-import org.olivia.test.project.inputs.dto.CharacterStatInputDto;
 import org.olivia.test.project.inputs.ui.CriticalBoundsInputUiDto;
 import org.olivia.test.project.inputs.ui.SolverSettingsInputUiDto;
 import org.olivia.test.project.inputs.ui.UptimeAssumptionsInputUiData;
@@ -78,6 +78,29 @@ public class OptimizerWindow extends JFrame {
         return section;
     }
 
+    private static JPanel verticalPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setAlignmentY(Component.TOP_ALIGNMENT);
+        return panel;
+    }
+
+    private static void addColumn(JPanel container,
+            Component component,
+            int column,
+            int row,
+            double weightX) {
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.gridx = column;
+        constraints.gridy = row;
+        constraints.weightx = weightX;
+        constraints.weighty = 1;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.anchor = GridBagConstraints.NORTH;
+        constraints.insets = new Insets(0, column == 0 ? 0 : 8, 0, 0);
+        container.add(component, constraints);
+    }
+
     private CharacterDataForm createFormFields(CharacterStatInputDto defaults) {
         return new CharacterDataForm(textField(defaults.characterSheetAttack()),
                 textField(defaults.statusAttackPower().physicalAdditionalAttackPower()),
@@ -91,20 +114,15 @@ public class OptimizerWindow extends JFrame {
     }
 
     private UptimeDataForm createFormFields(UptimeAssumptionsInputDto defaults) {
-        return new UptimeDataForm(textField(defaults.physicalStatusUptime()),
-                textField(defaults.elementalStatusUptime()));
+        return new UptimeDataForm(textField(defaults.physicalStatusUptime()), textField(defaults.elementalStatusUptime()));
     }
 
     private CriticalBoundsForm createFormFields(CriticalBoundsInputDto defaults) {
-        return new CriticalBoundsForm(textField(defaults.minimum()),
-                textField(defaults.maximum()),
-                textField(defaults.cap()));
+        return new CriticalBoundsForm(textField(defaults.minimum()), textField(defaults.maximum()), textField(defaults.cap()));
     }
 
     private SolverSettingsForm createFormFields(SolverSettingsInputDto defaults) {
-        return new SolverSettingsForm(textField(defaults.resultCount()),
-                textField(defaults.timeLimit()),
-                textField(defaults.workerCount()));
+        return new SolverSettingsForm(textField(defaults.resultCount()), textField(defaults.timeLimit()), textField(defaults.workerCount()));
     }
 
     private JPanel createWindowContent(CharacterDataForm characterFields,
@@ -145,25 +163,6 @@ public class OptimizerWindow extends JFrame {
         content.add(new JScrollPane(sections), BorderLayout.CENTER);
         content.add(footer, BorderLayout.SOUTH);
         return content;
-    }
-
-    private static JPanel verticalPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setAlignmentY(Component.TOP_ALIGNMENT);
-        return panel;
-    }
-
-    private static void addColumn(JPanel container, Component component, int column, int row, double weightX) {
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.gridx = column;
-        constraints.gridy = row;
-        constraints.weightx = weightX;
-        constraints.weighty = 1;
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.anchor = GridBagConstraints.NORTH;
-        constraints.insets = new Insets(0, column == 0 ? 0 : 8, 0, 0);
-        container.add(component, constraints);
     }
 
     private void configureWindow() {
@@ -295,21 +294,21 @@ public class OptimizerWindow extends JFrame {
     }
 
     private static class UptimeDataUiSection {
-        private static JPanel createSection(UptimeDataForm fields, UptimeAssumptionsInputDto defaults) {
+        private static JPanel createSection(UptimeDataForm fields,
+                UptimeAssumptionsInputDto defaults) {
             return OptimizerWindow.createSection("Uptime",
                     inputRow("Physical status uptime (%)", fields.physicalStatusUptime(), defaults.physicalStatusUptime()),
                     inputRow("Elemental status uptime (%)", fields.elementalStatusUptime(), defaults.elementalStatusUptime()));
         }
 
         private static UptimeAssumptionsInputUiData readUptimeDataUiData(UptimeDataForm form) {
-            return new UptimeAssumptionsInputUiData(
-                    form.physicalStatusUptime().getText(),
-                    form.elementalStatusUptime().getText());
+            return new UptimeAssumptionsInputUiData(form.physicalStatusUptime().getText(), form.elementalStatusUptime().getText());
         }
     }
 
     private static class CriticalBoundsUiSection {
-        private static JPanel createSection(CriticalBoundsForm fields, CriticalBoundsInputDto defaults) {
+        private static JPanel createSection(CriticalBoundsForm fields,
+                CriticalBoundsInputDto defaults) {
             return OptimizerWindow.createSection("Critical Bounds",
                     inputRow("Minimum (%)", fields.minimum(), defaults.minimum()),
                     inputRow("Maximum (%)", fields.maximum(), defaults.maximum()),
@@ -317,15 +316,13 @@ public class OptimizerWindow extends JFrame {
         }
 
         private static CriticalBoundsInputUiDto readCriticalBoundsUiData(CriticalBoundsForm form) {
-            return new CriticalBoundsInputUiDto(
-                    form.minimum().getText(),
-                    form.maximum().getText(),
-                    form.cap().getText());
+            return new CriticalBoundsInputUiDto(form.minimum().getText(), form.maximum().getText(), form.cap().getText());
         }
     }
 
     private static class SolverSettingsUiSection {
-        private static JPanel createSection(SolverSettingsForm fields, SolverSettingsInputDto defaults) {
+        private static JPanel createSection(SolverSettingsForm fields,
+                SolverSettingsInputDto defaults) {
             return OptimizerWindow.createSection("Solver Settings",
                     inputRow("Result count", fields.resultCount(), defaults.resultCount()),
                     inputRow("Time limit (s)", fields.timeLimit(), defaults.timeLimit()),
@@ -333,10 +330,7 @@ public class OptimizerWindow extends JFrame {
         }
 
         private static SolverSettingsInputUiDto readSolverSettingsUiData(SolverSettingsForm form) {
-            return new SolverSettingsInputUiDto(
-                    form.resultCount().getText(),
-                    form.timeLimit().getText(),
-                    form.workerCount().getText());
+            return new SolverSettingsInputUiDto(form.resultCount().getText(), form.timeLimit().getText(), form.workerCount().getText());
         }
     }
 

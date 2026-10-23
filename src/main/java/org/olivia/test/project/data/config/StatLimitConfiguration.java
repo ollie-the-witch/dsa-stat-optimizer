@@ -9,7 +9,6 @@ public record StatLimitConfiguration(Map<StatVariable, Integer> statCaps, Map<St
     public static StatLimitConfiguration statBoundsConfiguration(CriticalBoundsInputDto criticalBoundsInputDto) {
 
 
-
         Integer cap = (int) Math.round(criticalBoundsInputDto.cap() * (OptimizationConfigurations.getScale() / 100.0));
         Integer min = (int) Math.round(criticalBoundsInputDto.minimum() * (OptimizationConfigurations.getScale() / 100.0));
         Integer max = (int) Math.round(criticalBoundsInputDto.maximum() * (OptimizationConfigurations.getScale() / 100.0));

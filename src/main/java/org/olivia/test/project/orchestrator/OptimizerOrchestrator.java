@@ -52,7 +52,12 @@ public class OptimizerOrchestrator {
     public OptimizationModelBundle createOptimizationModel() {
         Loader.loadNativeLibraries();
         OptimizationModelService optimizationModelService = new OptimizationModelService();
-        return optimizationModelService.createOptimizationModelBundle(baseScaledStats, defaultStatIncrease, statBoundsConfiguration, defaultSelectCount, damageUptimeParameter, defaultOptimizationHint);
+        return optimizationModelService.createOptimizationModelBundle(baseScaledStats,
+                defaultStatIncrease,
+                statBoundsConfiguration,
+                defaultSelectCount,
+                damageUptimeParameter,
+                defaultOptimizationHint);
 
     }
 

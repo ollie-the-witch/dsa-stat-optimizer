@@ -13,6 +13,8 @@ public record OptimizationHint(Set<StatVariable> mainHint, Set<StatVariable> sub
         runes.put(StatVariable.ATTACK, 0);
         runes.put(StatVariable.CRITICAL_RATE, 0);
         runes.put(StatVariable.CRITICAL_DAMAGE, 5);
-        return new OptimizationHint(EnumSet.of(StatVariable.ATTACK_POWER_UP), EnumSet.of(StatVariable.ATTACK, StatVariable.ATTACK_POWER_UP, StatVariable.CRITICAL_RATE, StatVariable.CRITICAL_DAMAGE), Map.copyOf(runes));
+        return new OptimizationHint(EnumSet.of(StatVariable.ATTACK_POWER_UP),
+                EnumSet.of(StatVariable.ATTACK, StatVariable.ATTACK_POWER_UP, StatVariable.CRITICAL_RATE, StatVariable.CRITICAL_DAMAGE),
+                Map.copyOf(runes));
     }
 }

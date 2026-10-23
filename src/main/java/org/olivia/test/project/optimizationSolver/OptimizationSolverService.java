@@ -92,7 +92,8 @@ public class OptimizationSolverService {
         Map<EquipmentSlots, StatVariable> mainStats = new EnumMap<>(EquipmentSlots.class);
         Map<EquipmentSlots, List<StatVariable>> subStats = new EnumMap<>(EquipmentSlots.class);
         for (EquipmentSlots slot : EquipmentSlots.values()) {
-            var selectedMain = bundle.mainStatChoicesBySlot().get(slot).entrySet().stream().filter(entry -> solver.booleanValue(entry.getValue())).map(Map.Entry::getKey).findFirst().orElseThrow(() -> new IllegalStateException("No main stat selected for " + slot));
+            var selectedMain = bundle.mainStatChoicesBySlot().get(slot).entrySet().stream().filter(entry -> solver.booleanValue(entry.getValue())).map(Map.Entry::getKey).findFirst().orElseThrow(
+                    () -> new IllegalStateException("No main stat selected for " + slot));
             mainStats.put(slot, selectedMain);
 
             List<StatVariable> selectedSubStats = bundle.substatChoicesBySlot().get(slot).entrySet().stream().filter(entry -> solver.booleanValue(entry.getValue())).map(Map.Entry::getKey).toList();
@@ -102,6 +103,14 @@ public class OptimizationSolverService {
         Map<StatVariable, Integer> runeCounts = new EnumMap<>(StatVariable.class);
         bundle.runeCountsByStat().forEach((stat, variable) -> runeCounts.put(stat, Math.toIntExact(solver.value(variable))));
 
-        return new OptimizationResult(0, status.name(), finalStats, mainStats, subStats, runeCounts, solver.value(bundle.objective()), solver.bestObjectiveBound(), solver.wallTime());
+        return new OptimizationResult(0,
+                status.name(),
+                finalStats,
+                mainStats,
+                subStats,
+                runeCounts,
+                solver.value(bundle.objective()),
+                solver.bestObjectiveBound(),
+                solver.wallTime());
     }
 }

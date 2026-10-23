@@ -88,12 +88,25 @@ public class InputService {
         double physicalAdditionalDamageBonus = parseNonNegativeDouble("Physical additional damage bonus", uiData.physicalAdditionalDamageBonus());
         double elementalAdditionalDamageBonus = parseNonNegativeDouble("Elemental additional damage bonus", uiData.elementalAdditionalDamageBonus());
 
-        List<CharacterStatInputDto.AttackPowerUpSources> attackPowerUpSources = readSourceRows("Attack power-up", uiData.attackPowerUpSources(), CharacterStatInputDto.AttackPowerUpSources::new);
-        List<CharacterStatInputDto.StatusAttackPowerUpSources> statusAttackPowerUpSources = readSourceRows("Status attack power-up", uiData.statusAttackPowerUpSources(), CharacterStatInputDto.StatusAttackPowerUpSources::new);
-        List<CharacterStatInputDto.CriticalRateSources> criticalRateSources = readSourceRows("Critical rate", uiData.criticalRateSources(), CharacterStatInputDto.CriticalRateSources::new);
-        List<CharacterStatInputDto.CriticalDamageSources> criticalDamageSources = readSourceRows("Critical damage", uiData.criticalDamageSources(), CharacterStatInputDto.CriticalDamageSources::new);
+        List<CharacterStatInputDto.AttackPowerUpSources> attackPowerUpSources = readSourceRows("Attack power-up",
+                uiData.attackPowerUpSources(),
+                CharacterStatInputDto.AttackPowerUpSources::new);
+        List<CharacterStatInputDto.StatusAttackPowerUpSources> statusAttackPowerUpSources = readSourceRows("Status attack power-up",
+                uiData.statusAttackPowerUpSources(),
+                CharacterStatInputDto.StatusAttackPowerUpSources::new);
+        List<CharacterStatInputDto.CriticalRateSources> criticalRateSources = readSourceRows("Critical rate",
+                uiData.criticalRateSources(),
+                CharacterStatInputDto.CriticalRateSources::new);
+        List<CharacterStatInputDto.CriticalDamageSources> criticalDamageSources = readSourceRows("Critical damage",
+                uiData.criticalDamageSources(),
+                CharacterStatInputDto.CriticalDamageSources::new);
 
-        CharacterStatInputDto result = new CharacterStatInputDto(characterSheetAttack, attackPowerUpSources, new CharacterStatInputDto.StatusAttackPower(physicalAdditionalAttackPower, elementalAdditionalAttackPower, statusAttackPowerUpSources), new CharacterStatInputDto.StatusAdditionalDamageBonus(physicalAdditionalDamageBonus, elementalAdditionalDamageBonus), criticalRateSources, criticalDamageSources);
+        CharacterStatInputDto result = new CharacterStatInputDto(characterSheetAttack,
+                attackPowerUpSources,
+                new CharacterStatInputDto.StatusAttackPower(physicalAdditionalAttackPower, elementalAdditionalAttackPower, statusAttackPowerUpSources),
+                new CharacterStatInputDto.StatusAdditionalDamageBonus(physicalAdditionalDamageBonus, elementalAdditionalDamageBonus),
+                criticalRateSources,
+                criticalDamageSources);
 
         inputs.setCharacterStatInputDto(result);
         return result;
@@ -118,13 +131,15 @@ public class InputService {
         return inputs.getUptimeAssumptionsInputDto();
     }
 
-    public void readArmorBonusInputDto(){
+    public void readArmorBonusInputDto() {
 
     }
-    public void readStatLocksInputDto(){
+
+    public void readStatLocksInputDto() {
 
     }
-    public void readStatIncrementInputDto(){
+
+    public void readStatIncrementInputDto() {
 
     }
 

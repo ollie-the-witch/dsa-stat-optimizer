@@ -1,7 +1,9 @@
 package org.olivia.test.project.data.enumerations;
 
 public enum StatCategory {
-    MAIN("Main"), SUBSTAT("Sub"), RUNE("Rune"),
+    MAIN("Main"),
+    SUBSTAT("Sub"),
+    RUNE("Rune"),
     ;
 
     public final String alias;
