@@ -37,7 +37,7 @@ public class OptimizerWindow extends JFrame {
         uptimeDataForm = createFormFields(defaultInputs.getUptimeAssumptionsInputDto());
         criticalBoundsForm = createFormFields(defaultInputs.getCriticalBoundsInputDto());
         solverSettingsForm = createFormFields(defaultInputs.getSolverSettingsInputDto());
-        setContentPane(createWindowContent(characterDataForm, defaultInputs));
+        setContentPane(createWindowContent(characterDataForm, uptimeDataForm, criticalBoundsForm, solverSettingsForm, defaultInputs));
         configureWindow();
         optimizeButton.addActionListener(event -> handleOptimize());
     }
@@ -107,20 +107,34 @@ public class OptimizerWindow extends JFrame {
                 textField(defaults.workerCount()));
     }
 
-    private JPanel createWindowContent(CharacterDataForm fields,
+    private JPanel createWindowContent(CharacterDataForm characterFields,
+            UptimeDataForm uptimeFields,
+            CriticalBoundsForm criticalBoundsFields,
+            SolverSettingsForm solverSettingsFields,
             Inputs defaults) {
-
-        CharacterStatInputDto characterStatInputDefaults = defaults.getCharacterStatInputDto();
-        JPanel sections = new JPanel();
+        CharacterStatInputDto characterDefaults = defaults.getCharacterStatInputDto();
+        JPanel sections = new JPanel(new GridBagLayout());
         sections.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
-        sections.setLayout(new BoxLayout(sections, BoxLayout.Y_AXIS));
-        sections.add(CharacterDataUISection.createCharacterStatsSection(fields, characterStatInputDefaults));
-        sections.add(Box.createVerticalStrut(8));
-        sections.add(CharacterDataUISection.createAttackPowerSection(fields));
-        sections.add(Box.createVerticalStrut(8));
-        sections.add(CharacterDataUISection.createCriticalStatsSection(fields));
-        sections.add(Box.createVerticalStrut(8));
-        sections.add(CharacterDataUISection.createAdditionalDamageSection(fields, characterStatInputDefaults));
+
+        JPanel characterColumn = verticalPanel();
+        characterColumn.add(CharacterDataUISection.createCharacterStatsSection(characterFields, characterDefaults));
+        characterColumn.add(Box.createVerticalStrut(8));
+        characterColumn.add(CharacterDataUISection.createAttackPowerSection(characterFields));
+        characterColumn.add(Box.createVerticalStrut(8));
+        characterColumn.add(CharacterDataUISection.createCriticalStatsSection(characterFields));
+        characterColumn.add(Box.createVerticalStrut(8));
+        characterColumn.add(CharacterDataUISection.createAdditionalDamageSection(characterFields, characterDefaults));
+
+        JPanel criticalAndSolverColumn = verticalPanel();
+        criticalAndSolverColumn.add(CriticalBoundsUiSection.createSection(criticalBoundsFields, defaults.getCriticalBoundsInputDto()));
+        criticalAndSolverColumn.add(Box.createVerticalStrut(8));
+        criticalAndSolverColumn.add(SolverSettingsUiSection.createSection(solverSettingsFields, defaults.getSolverSettingsInputDto()));
+
+        JPanel uptimeColumn = verticalPanel();
+        uptimeColumn.add(UptimeDataUiSection.createSection(uptimeFields, defaults.getUptimeAssumptionsInputDto()));
+        addColumn(sections, characterColumn, 0, 0, 1.4);
+        addColumn(sections, uptimeColumn, 1, 0, 1);
+        addColumn(sections, criticalAndSolverColumn, 2, 0, 1);
 
         JPanel footer = new JPanel(new BorderLayout(8, 8));
         footer.setBorder(BorderFactory.createEmptyBorder(8, 12, 12, 12));
@@ -133,9 +147,28 @@ public class OptimizerWindow extends JFrame {
         return content;
     }
 
+    private static JPanel verticalPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setAlignmentY(Component.TOP_ALIGNMENT);
+        return panel;
+    }
+
+    private static void addColumn(JPanel container, Component component, int column, int row, double weightX) {
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.gridx = column;
+        constraints.gridy = row;
+        constraints.weightx = weightX;
+        constraints.weighty = 1;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.anchor = GridBagConstraints.NORTH;
+        constraints.insets = new Insets(0, column == 0 ? 0 : 8, 0, 0);
+        container.add(component, constraints);
+    }
+
     private void configureWindow() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setMinimumSize(new Dimension(560, 680));
+        setMinimumSize(new Dimension(1050, 680));
         pack();
         setLocationRelativeTo(null);
     }
@@ -144,9 +177,9 @@ public class OptimizerWindow extends JFrame {
         final OptimizerOrchestrator orchestrator;
         try {
             inputService.readCharacterStatInputDto(CharacterDataUISection.readCharacterStatUiData(characterDataForm), defaultInputs);
-            inputService.readUptimeAssumptionsInputDto(UptimeDataUiSection.readUptimeDataUiData(characterDataForm), defaultInputs);
-            inputService.readCriticalBoundsInputDto(CriticalBoundsUiSection.readCriticalBoundsUiData(characterDataForm),defaultInputs);
-            inputService.readSolverSettingsInputDto(SolverSettingsUiSection.readSolverSettingsUiData(characterDataForm),defaultInputs);
+            inputService.readUptimeAssumptionsInputDto(UptimeDataUiSection.readUptimeDataUiData(uptimeDataForm), defaultInputs);
+            inputService.readCriticalBoundsInputDto(CriticalBoundsUiSection.readCriticalBoundsUiData(criticalBoundsForm), defaultInputs);
+            inputService.readSolverSettingsInputDto(SolverSettingsUiSection.readSolverSettingsUiData(solverSettingsForm), defaultInputs);
 
             System.out.println("Debug Input Stats:");
             System.out.println(defaultInputs.getSolverSettingsInputDto());
@@ -262,20 +295,48 @@ public class OptimizerWindow extends JFrame {
     }
 
     private static class UptimeDataUiSection {
-        private static UptimeAssumptionsInputUiData readUptimeDataUiData(CharacterDataForm form) {
-            return null;
+        private static JPanel createSection(UptimeDataForm fields, UptimeAssumptionsInputDto defaults) {
+            return OptimizerWindow.createSection("Uptime",
+                    inputRow("Physical status uptime (%)", fields.physicalStatusUptime(), defaults.physicalStatusUptime()),
+                    inputRow("Elemental status uptime (%)", fields.elementalStatusUptime(), defaults.elementalStatusUptime()));
+        }
+
+        private static UptimeAssumptionsInputUiData readUptimeDataUiData(UptimeDataForm form) {
+            return new UptimeAssumptionsInputUiData(
+                    form.physicalStatusUptime().getText(),
+                    form.elementalStatusUptime().getText());
         }
     }
 
     private static class CriticalBoundsUiSection {
-        private static CriticalBoundsInputUiDto readCriticalBoundsUiData(CharacterDataForm form) {
-            return null;
+        private static JPanel createSection(CriticalBoundsForm fields, CriticalBoundsInputDto defaults) {
+            return OptimizerWindow.createSection("Critical Bounds",
+                    inputRow("Minimum (%)", fields.minimum(), defaults.minimum()),
+                    inputRow("Maximum (%)", fields.maximum(), defaults.maximum()),
+                    inputRow("Hard cap", fields.cap(), defaults.cap()));
+        }
+
+        private static CriticalBoundsInputUiDto readCriticalBoundsUiData(CriticalBoundsForm form) {
+            return new CriticalBoundsInputUiDto(
+                    form.minimum().getText(),
+                    form.maximum().getText(),
+                    form.cap().getText());
         }
     }
 
     private static class SolverSettingsUiSection {
-        private static SolverSettingsInputUiDto readSolverSettingsUiData(CharacterDataForm form) {
-            return null;
+        private static JPanel createSection(SolverSettingsForm fields, SolverSettingsInputDto defaults) {
+            return OptimizerWindow.createSection("Solver Settings",
+                    inputRow("Result count", fields.resultCount(), defaults.resultCount()),
+                    inputRow("Time limit (s)", fields.timeLimit(), defaults.timeLimit()),
+                    inputRow("Workers", fields.workerCount(), defaults.workerCount()));
+        }
+
+        private static SolverSettingsInputUiDto readSolverSettingsUiData(SolverSettingsForm form) {
+            return new SolverSettingsInputUiDto(
+                    form.resultCount().getText(),
+                    form.timeLimit().getText(),
+                    form.workerCount().getText());
         }
     }
 
