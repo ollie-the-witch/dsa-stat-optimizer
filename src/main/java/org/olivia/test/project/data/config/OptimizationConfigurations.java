@@ -1,14 +1,7 @@
 package org.olivia.test.project.data.config;
 
 public class OptimizationConfigurations {
-    private static int scale = 10000;
-
-    public OptimizationConfigurations() {
-    }
-
-    public OptimizationConfigurations(int scale) {
-        OptimizationConfigurations.scale = scale;
-    }
+    private static final int scale = 10000;
 
     public static int getScale() {
         return scale;

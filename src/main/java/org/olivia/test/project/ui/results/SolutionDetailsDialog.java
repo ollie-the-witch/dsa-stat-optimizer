@@ -47,11 +47,6 @@ final class SolutionDetailsDialog extends JDialog {
         panel.add(new JLabel(value));
     }
 
-    private static void addEmptyStat(JPanel panel) {
-        panel.add(new JLabel());
-        panel.add(new JLabel());
-    }
-
     private static Dimension sizeEquipmentColumns(JTable table) {
         FontMetrics metrics = table.getFontMetrics(table.getFont());
         int totalWidth = 0;

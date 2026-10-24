@@ -204,7 +204,6 @@ public class OptimizationModelService {
 
 
     /**
-     * TODO WIP; refactor later
      * Create model to shove into solver later
      * Needs:
      * - Selection
@@ -212,11 +211,11 @@ public class OptimizationModelService {
      * - Envelope
      * - Bounds
      *
-     * @param baseScaledStats
-     * @param statIncreases
-     * @param statLimitConfiguration
-     * @param selectCount
-     * @return
+     * @param baseScaledStats        base stats derived from character sheet inputs
+     * @param statIncreases          configured stat increase intervals
+     * @param statLimitConfiguration configured limits on stats
+     * @param selectCount            number of selections for each category
+     * @return the final bundle for optimizer use
      */
     public OptimizationModelBundle createOptimizationModelBundle(BaseScaledStats baseScaledStats,
             StatIncreases statIncreases,

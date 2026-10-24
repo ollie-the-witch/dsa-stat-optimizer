@@ -1,6 +1,6 @@
 package org.olivia.test.project.ui;
 
-import org.olivia.test.project.inputs.InputService;
+import org.olivia.test.project.inputs.InputToTranslatorService;
 import org.olivia.test.project.inputs.Inputs;
 import org.olivia.test.project.optimizationModel.OptimizationModelBundle;
 import org.olivia.test.project.optimizationSolver.OptimizationRunResult;
@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutionException;
 
 public class InOutController {
 
-    private final InputService inputService = new InputService();
+    private final InputToTranslatorService inputToTranslatorService = new InputToTranslatorService();
 
     private final OptimizerWindow parentOptimizerWindow;
     private final Inputs defaultInputs;
@@ -43,7 +43,7 @@ public class InOutController {
 
     void handleOptimize() {
 
-        if (!readInput(inputService, inputPanel, defaultInputs)) return;
+        if (!readInput(inputToTranslatorService, inputPanel, defaultInputs)) return;
 
         final OptimizerBackendOrchestrator backendOrchestrator = createOrchestratorWithInput(defaultInputs);
         if (backendOrchestrator == null) return;
@@ -95,15 +95,19 @@ public class InOutController {
         }
     }
 
-    private boolean readInput(InputService inputService,
+    private boolean readInput(InputToTranslatorService inputToTranslatorService,
             OptimizerInputPanel inputPanel,
             Inputs defaultInputs) {
         try {
             OptimizerInputPanel.FormData formData = inputPanel.readUiData();
-            inputService.readCharacterStatInputDto(formData.characterStats(), defaultInputs);
-            inputService.readUptimeAssumptionsInputDto(formData.uptime(), defaultInputs);
-            inputService.readCriticalBoundsInputDto(formData.criticalBounds(), defaultInputs);
-            inputService.readSolverSettingsInputDto(formData.solverSettings(), defaultInputs);
+            inputToTranslatorService.readCharacterStatInputDto(formData.characterStats(), defaultInputs);
+            inputToTranslatorService.readUptimeAssumptionsInputDto(formData.uptime(), defaultInputs);
+            inputToTranslatorService.readCriticalBoundsInputDto(formData.criticalBounds(), defaultInputs);
+            inputToTranslatorService.readSolverSettingsInputDto(formData.solverSettings(), defaultInputs);
+
+            inputToTranslatorService.readArmorBonusInputDto();
+            inputToTranslatorService.readStatLocksInputDto();
+            inputToTranslatorService.readStatIncrementInputDto();
         } catch (Exception exception) {
             showInputError(exception.getMessage());
             return false;

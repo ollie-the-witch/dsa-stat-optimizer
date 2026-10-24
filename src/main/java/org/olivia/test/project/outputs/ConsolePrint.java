@@ -1,6 +1,5 @@
 package org.olivia.test.project.outputs;
 
-import org.olivia.test.project.data.BaseScaledStats;
 import org.olivia.test.project.data.StatusDamageBonus;
 import org.olivia.test.project.data.StatusUptimeParameters;
 import org.olivia.test.project.data.config.OptimizationConfigurations;
@@ -21,7 +20,6 @@ public class ConsolePrint {
     private final StatusUptimeParameters statusUptimeParameters;
 
     public ConsolePrint(Inputs userInput,
-            BaseScaledStats baseScaledStats,
             StatusUptimeParameters statusUptimeParameters,
             StatusDamageBonus statusDamageBonus,
             OptimizationRunResult runResult) {

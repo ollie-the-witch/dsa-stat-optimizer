@@ -9,7 +9,7 @@ import org.olivia.test.project.data.config.OptimizationHint;
 import org.olivia.test.project.data.config.SelectCount;
 import org.olivia.test.project.data.config.SolverConfiguration;
 import org.olivia.test.project.data.config.StatLimitConfiguration;
-import org.olivia.test.project.inputs.InputService;
+import org.olivia.test.project.inputs.InputToTranslatorService;
 import org.olivia.test.project.inputs.Inputs;
 import org.olivia.test.project.optimizationModel.OptimizationModelBundle;
 import org.olivia.test.project.optimizationModel.OptimizationModelService;
@@ -43,9 +43,9 @@ public class OptimizerBackendOrchestrator {
 
     public static Inputs loadDefaultInput() {
 
-        InputService inputService = new InputService();
+        InputToTranslatorService inputToTranslatorService = new InputToTranslatorService();
 
-        return inputService.defaultInputs();
+        return inputToTranslatorService.defaultInputs();
     }
 
     public OptimizationModelBundle createOptimizationModel() {
@@ -67,7 +67,7 @@ public class OptimizerBackendOrchestrator {
 
     public void printResultToConsole(Inputs inputs,
             OptimizationRunResult result) {
-        ConsolePrint consolePrinter = new ConsolePrint(inputs, baseScaledStats, damageUptimeParameter, statusDamageBonus, result);
+        ConsolePrint consolePrinter = new ConsolePrint(inputs, damageUptimeParameter, statusDamageBonus, result);
         consolePrinter.printOutput();
     }
 }

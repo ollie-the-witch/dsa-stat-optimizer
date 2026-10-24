@@ -13,7 +13,7 @@ import org.olivia.test.project.ui.inputs.dto.UptimeAssumptionsInputUiDto;
 import java.util.List;
 import java.util.stream.IntStream;
 
-public class InputService {
+public class InputToTranslatorService {
 
     private static <T> List<T> readSourceRows(String label,
             List<CharacterStatInputUiDto.SourceRow> rows,
@@ -73,7 +73,7 @@ public class InputService {
         return new Inputs();
     }
 
-    public CharacterStatTranslationDto readCharacterStatInputDto(CharacterStatInputUiDto uiData,
+    public void readCharacterStatInputDto(CharacterStatInputUiDto uiData,
             Inputs inputs) {
         if (uiData == null) {
             throw new IllegalArgumentException("Character stat form data is required.");
@@ -109,10 +109,9 @@ public class InputService {
                 criticalDamageSources);
 
         inputs.setCharacterStatInputDto(result);
-        return result;
     }
 
-    public UptimeTranslationDto readUptimeAssumptionsInputDto(UptimeAssumptionsInputUiDto uiData,
+    public void readUptimeAssumptionsInputDto(UptimeAssumptionsInputUiDto uiData,
             Inputs inputs) {
 
         if (uiData == null) {
@@ -128,7 +127,6 @@ public class InputService {
         UptimeTranslationDto result = new UptimeTranslationDto(physicalStatusUptime, elementalStatusUptime);
 
         inputs.setUptimeAssumptionsInputDto(result);
-        return inputs.getUptimeAssumptionsInputDto();
     }
 
     public void readArmorBonusInputDto() {
@@ -143,7 +141,7 @@ public class InputService {
 
     }
 
-    public CriticalBoundsTranslationDto readCriticalBoundsInputDto(CriticalBoundsInputUiDto uiData,
+    public void readCriticalBoundsInputDto(CriticalBoundsInputUiDto uiData,
             Inputs inputs) {
 
         double minimum = parseNonNegativeDouble("Minimum Desired Critical Rate", uiData.minimum());
@@ -154,10 +152,9 @@ public class InputService {
         CriticalBoundsTranslationDto result = new CriticalBoundsTranslationDto(minimum, maximum, cap);
 
         inputs.setCriticalBoundsInputDto(result);
-        return inputs.getCriticalBoundsInputDto();
     }
 
-    public SolverSettingsTranslationDto readSolverSettingsInputDto(SolverSettingsInputUiDto uiData,
+    public void readSolverSettingsInputDto(SolverSettingsInputUiDto uiData,
             Inputs inputs) {
 
         int resultCount = parseNonNegativeInt("Number of Results to Return", uiData.resultCount());
@@ -166,7 +163,6 @@ public class InputService {
 
         SolverSettingsTranslationDto result = new SolverSettingsTranslationDto(resultCount, timeLimit, workerCount);
         inputs.setSolverSettingsInputDto(result);
-        return inputs.getSolverSettingsInputDto();
     }
 
     @FunctionalInterface
