@@ -14,27 +14,22 @@
     </properties>
 
     <dependencies>
-        <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin -->
-        <dependency>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <version>3.16.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <!-- Source: https://mvnrepository.com/artifact/com.google.ortools/ortools-java -->
         <dependency>
             <groupId>com.google.ortools</groupId>
             <artifactId>ortools-java</artifactId>
             <version>9.15.6755</version>
-            <scope>compile</scope>
         </dependency>
 
-        <!-- Source: https://mvnrepository.com/artifact/org.apache.commons/commons-collections4 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
             <version>4.6.0</version>
-            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.21.0</version>
         </dependency>
 
         <dependency>
@@ -44,6 +39,31 @@
         </dependency>
 
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.16.0</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.5.0</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.6.4</version>
+                <configuration>
+                    <mainClass>org.olivia.test.project.MainApp</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 
 </project>

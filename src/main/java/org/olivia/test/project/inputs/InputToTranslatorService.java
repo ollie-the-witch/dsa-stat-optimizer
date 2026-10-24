@@ -1,6 +1,6 @@
 package org.olivia.test.project.inputs;
 
-import org.codehaus.plexus.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.olivia.test.project.inputs.dto.CharacterStatTranslationDto;
 import org.olivia.test.project.inputs.dto.CriticalBoundsTranslationDto;
 import org.olivia.test.project.inputs.dto.SolverSettingsTranslationDto;

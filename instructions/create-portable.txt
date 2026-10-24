@@ -1,0 +1,12 @@
+mvn clean package
+mvn dependency:copy-dependencies "-DoutputDirectory=output\app-input\"
+Copy-Item "target\dsaOllieOptimizer1-1.0-SNAPSHOT.jar" "output\app-input\"
+jpackage `
+  --type app-image `
+  --name "DSA Ollie Optimizer" `
+  --app-version "1.0.0" `
+  --input "output\app-input" `
+  --main-jar "dsaOllieOptimizer1-1.0-SNAPSHOT.jar" `
+  --main-class "org.olivia.test.project.MainApp" `
+  --dest "output\portable"
+
