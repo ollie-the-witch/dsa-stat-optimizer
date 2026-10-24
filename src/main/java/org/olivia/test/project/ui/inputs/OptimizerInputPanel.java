@@ -1,10 +1,10 @@
 package org.olivia.test.project.ui.inputs;
 
 import org.olivia.test.project.inputs.Inputs;
-import org.olivia.test.project.inputs.ui.CharacterStatInputUiData;
-import org.olivia.test.project.inputs.ui.CriticalBoundsInputUiDto;
-import org.olivia.test.project.inputs.ui.SolverSettingsInputUiDto;
-import org.olivia.test.project.inputs.ui.UptimeAssumptionsInputUiData;
+import org.olivia.test.project.ui.inputs.dto.CharacterStatInputUiData;
+import org.olivia.test.project.ui.inputs.dto.CriticalBoundsInputUiDto;
+import org.olivia.test.project.ui.inputs.dto.SolverSettingsInputUiDto;
+import org.olivia.test.project.ui.inputs.dto.UptimeAssumptionsInputUiData;
 
 import javax.swing.*;
 import java.awt.*;

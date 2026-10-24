@@ -17,7 +17,7 @@ import org.olivia.test.project.optimizationSolver.OptimizationRunResult;
 import org.olivia.test.project.optimizationSolver.OptimizationSolverService;
 import org.olivia.test.project.outputs.ConsolePrint;
 
-public class OptimizerOrchestrator {
+public class OptimizerBackendOrchestrator {
 
     private final BaseScaledStats baseScaledStats;
     private final StatusUptimeParameters damageUptimeParameter;
@@ -29,7 +29,7 @@ public class OptimizerOrchestrator {
     private final SelectCount defaultSelectCount;
     private final OptimizationHint defaultOptimizationHint;
 
-    public OptimizerOrchestrator(Inputs inputs) {
+    public OptimizerBackendOrchestrator(Inputs inputs) {
         baseScaledStats = BaseScaledStats.calculateBaseStats(inputs.getCharacterStatInputDto());
         damageUptimeParameter = StatusUptimeParameters.damageUptimeParameter(inputs.getUptimeAssumptionsInputDto());
         statBoundsConfiguration = StatLimitConfiguration.statBoundsConfiguration(inputs.getCriticalBoundsInputDto());
@@ -41,12 +41,11 @@ public class OptimizerOrchestrator {
         defaultOptimizationHint = OptimizationHint.defaultOptimizationHint();
     }
 
-    public static Inputs loadInput() {
+    public static Inputs loadDefaultInput() {
 
         InputService inputService = new InputService();
-        Inputs input = inputService.defaultInputs();
 
-        return input;
+        return inputService.defaultInputs();
     }
 
     public OptimizationModelBundle createOptimizationModel() {
@@ -61,7 +60,7 @@ public class OptimizerOrchestrator {
 
     }
 
-    public OptimizationRunResult solverOptimzationProblem(OptimizationModelBundle model) {
+    public OptimizationRunResult solverOptimizationProblem(OptimizationModelBundle model) {
         OptimizationSolverService solverService = new OptimizationSolverService(model, solverConfiguration);
         return solverService.optimize();
     }

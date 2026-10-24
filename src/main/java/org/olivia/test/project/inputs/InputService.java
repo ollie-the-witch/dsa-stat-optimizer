@@ -5,10 +5,10 @@ import org.olivia.test.project.inputs.dto.CharacterStatInputDto;
 import org.olivia.test.project.inputs.dto.CriticalBoundsInputDto;
 import org.olivia.test.project.inputs.dto.SolverSettingsInputDto;
 import org.olivia.test.project.inputs.dto.UptimeAssumptionsInputDto;
-import org.olivia.test.project.inputs.ui.CharacterStatInputUiData;
-import org.olivia.test.project.inputs.ui.CriticalBoundsInputUiDto;
-import org.olivia.test.project.inputs.ui.SolverSettingsInputUiDto;
-import org.olivia.test.project.inputs.ui.UptimeAssumptionsInputUiData;
+import org.olivia.test.project.ui.inputs.dto.CharacterStatInputUiData;
+import org.olivia.test.project.ui.inputs.dto.CriticalBoundsInputUiDto;
+import org.olivia.test.project.ui.inputs.dto.SolverSettingsInputUiDto;
+import org.olivia.test.project.ui.inputs.dto.UptimeAssumptionsInputUiData;
 
 import java.util.List;
 import java.util.stream.IntStream;

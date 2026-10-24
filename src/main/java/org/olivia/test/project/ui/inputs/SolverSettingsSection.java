@@ -1,7 +1,7 @@
 package org.olivia.test.project.ui.inputs;
 
 import org.olivia.test.project.inputs.dto.SolverSettingsInputDto;
-import org.olivia.test.project.inputs.ui.SolverSettingsInputUiDto;
+import org.olivia.test.project.ui.inputs.dto.SolverSettingsInputUiDto;
 
 import javax.swing.*;
 

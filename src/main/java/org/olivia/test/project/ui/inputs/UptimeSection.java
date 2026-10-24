@@ -1,7 +1,7 @@
 package org.olivia.test.project.ui.inputs;
 
 import org.olivia.test.project.inputs.dto.UptimeAssumptionsInputDto;
-import org.olivia.test.project.inputs.ui.UptimeAssumptionsInputUiData;
+import org.olivia.test.project.ui.inputs.dto.UptimeAssumptionsInputUiData;
 
 import javax.swing.*;
 

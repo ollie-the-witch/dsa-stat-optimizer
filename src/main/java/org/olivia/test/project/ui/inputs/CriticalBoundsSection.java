@@ -1,7 +1,7 @@
 package org.olivia.test.project.ui.inputs;
 
 import org.olivia.test.project.inputs.dto.CriticalBoundsInputDto;
-import org.olivia.test.project.inputs.ui.CriticalBoundsInputUiDto;
+import org.olivia.test.project.ui.inputs.dto.CriticalBoundsInputUiDto;
 
 import javax.swing.*;
 

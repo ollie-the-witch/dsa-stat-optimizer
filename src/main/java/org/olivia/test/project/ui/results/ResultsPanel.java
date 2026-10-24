@@ -78,7 +78,7 @@ public final class ResultsPanel extends JPanel {
                     return;
                 }
                 int modelRow = table.convertRowIndexToModel(viewRow);
-                showBuild(tableModel.resultAt(modelRow));
+                showDetailedBuild(tableModel.resultAt(modelRow));
             }
         });
         table.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -92,7 +92,7 @@ public final class ResultsPanel extends JPanel {
         table.getColumnModel().getColumn(BUILD_COLUMN).setPreferredWidth(100);
     }
 
-    private void showBuild(OptimizationResult result) {
+    private void showDetailedBuild(OptimizationResult result) {
         new SolutionDetailsDialog(owner, result).setVisible(true);
     }
 

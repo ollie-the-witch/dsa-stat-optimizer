@@ -1,7 +1,7 @@
 package org.olivia.test.project.ui.inputs;
 
 import org.olivia.test.project.inputs.dto.CharacterStatInputDto;
-import org.olivia.test.project.inputs.ui.CharacterStatInputUiData;
+import org.olivia.test.project.ui.inputs.dto.CharacterStatInputUiData;
 
 import javax.swing.*;
 import java.util.List;
