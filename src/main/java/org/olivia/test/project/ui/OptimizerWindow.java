@@ -30,6 +30,8 @@ public class OptimizerWindow extends JFrame {
     private final SolverSettingsForm solverSettingsForm;
     private final JButton optimizeButton = new JButton("Optimize");
     private final JLabel statusLabel = new JLabel(" ");
+    private final ResultsPanel resultsPanel;
+    private final JSplitPane mainSplitPane;
 
     public OptimizerWindow() {
         super("Upgrade Optimizer");
@@ -37,7 +39,9 @@ public class OptimizerWindow extends JFrame {
         uptimeDataForm = createFormFields(defaultInputs.getUptimeAssumptionsInputDto());
         criticalBoundsForm = createFormFields(defaultInputs.getCriticalBoundsInputDto());
         solverSettingsForm = createFormFields(defaultInputs.getSolverSettingsInputDto());
-        setContentPane(createWindowContent(characterDataForm, uptimeDataForm, criticalBoundsForm, solverSettingsForm, defaultInputs));
+        resultsPanel = new ResultsPanel(this);
+        mainSplitPane = createWindowContent(characterDataForm, uptimeDataForm, criticalBoundsForm, solverSettingsForm, defaultInputs);
+        setContentPane(mainSplitPane);
         configureWindow();
         optimizeButton.addActionListener(event -> handleOptimize());
     }
@@ -129,7 +133,7 @@ public class OptimizerWindow extends JFrame {
         return new SolverSettingsForm(textField(defaults.resultCount()), textField(defaults.timeLimit()), textField(defaults.workerCount()));
     }
 
-    private JPanel createWindowContent(CharacterDataForm characterFields,
+    private JSplitPane createWindowContent(CharacterDataForm characterFields,
             UptimeDataForm uptimeFields,
             CriticalBoundsForm criticalBoundsFields,
             SolverSettingsForm solverSettingsFields,
@@ -165,15 +169,24 @@ public class OptimizerWindow extends JFrame {
         footer.add(optimizeButton, BorderLayout.EAST);
 
         JPanel content = new JPanel(new BorderLayout());
-        content.add(new JScrollPane(sections), BorderLayout.CENTER);
+        content.add(sections, BorderLayout.CENTER);
         content.add(footer, BorderLayout.SOUTH);
-        return content;
+        content.setMinimumSize(new Dimension(0, content.getPreferredSize().height));
+        resultsPanel.setMinimumSize(new Dimension(0, 300));
+
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, content, resultsPanel);
+        splitPane.setResizeWeight(0.66);
+        splitPane.setContinuousLayout(true);
+        splitPane.setOneTouchExpandable(false);
+        splitPane.setDividerSize(2);
+        return splitPane;
     }
 
     private void configureWindow() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setMinimumSize(new Dimension(1050, 680));
+        setMinimumSize(new Dimension(1050, 700));
         pack();
+        mainSplitPane.setDividerLocation(mainSplitPane.getTopComponent().getPreferredSize().height);
         setLocationRelativeTo(null);
     }
 
@@ -185,11 +198,6 @@ public class OptimizerWindow extends JFrame {
             inputService.readCriticalBoundsInputDto(CriticalBoundsUiSection.readCriticalBoundsUiData(criticalBoundsForm), defaultInputs);
             inputService.readSolverSettingsInputDto(SolverSettingsUiSection.readSolverSettingsUiData(solverSettingsForm), defaultInputs);
 
-            System.out.println("Debug Input Stats:");
-            System.out.println(defaultInputs.getSolverSettingsInputDto());
-            System.out.println(defaultInputs.getUptimeAssumptionsInputDto());
-            System.out.println(defaultInputs.getCriticalBoundsInputDto());
-            System.out.println(defaultInputs.getCharacterStatInputDto());
             orchestrator = new OptimizerOrchestrator(defaultInputs);
         } catch (IllegalArgumentException exception) {
             showInputError(exception.getMessage());
@@ -212,7 +220,8 @@ public class OptimizerWindow extends JFrame {
                 try {
                     OptimizationRunResult result = get();
                     orchestrator.printResultToConsole(defaultInputs, result);
-                    statusLabel.setText("Optimization complete. Results printed to the console.");
+                    statusLabel.setText("Optimization complete.");
+                    resultsPanel.showResults(defaultInputs, result);
                 } catch (InterruptedException exception) {
                     Thread.currentThread().interrupt();
                     statusLabel.setText("Optimization interrupted.");
