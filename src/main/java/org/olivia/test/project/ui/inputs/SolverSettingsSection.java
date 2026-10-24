@@ -1,6 +1,6 @@
 package org.olivia.test.project.ui.inputs;
 
-import org.olivia.test.project.inputs.dto.SolverSettingsInputDto;
+import org.olivia.test.project.inputs.dto.SolverSettingsTranslationDto;
 import org.olivia.test.project.ui.inputs.dto.SolverSettingsInputUiDto;
 
 import javax.swing.*;
@@ -10,7 +10,7 @@ final class SolverSettingsSection extends JPanel {
     private final JTextField timeLimit;
     private final JTextField workerCount;
 
-    SolverSettingsSection(SolverSettingsInputDto defaults) {
+    SolverSettingsSection(SolverSettingsTranslationDto defaults) {
         resultCount = InputSectionSupport.textField(defaults.resultCount());
         timeLimit = InputSectionSupport.textField(defaults.timeLimit());
         workerCount = InputSectionSupport.textField(defaults.workerCount());

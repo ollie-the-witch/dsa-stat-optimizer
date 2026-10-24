@@ -1,11 +1,11 @@
 package org.olivia.test.project.inputs.dto;
 
-public class CriticalBoundsInputDto {
+public class CriticalBoundsTranslationDto {
     private final Double minimum;
     private final Double maximum;
     private final double cap;
 
-    public CriticalBoundsInputDto(Double minimum,
+    public CriticalBoundsTranslationDto(Double minimum,
             Double maximum,
             double cap) {
         this.minimum = minimum;
@@ -17,7 +17,7 @@ public class CriticalBoundsInputDto {
         }
     }
 
-    public CriticalBoundsInputDto(Double minimum,
+    public CriticalBoundsTranslationDto(Double minimum,
             Double maximum) {
         this.minimum = minimum;
         this.maximum = maximum;
@@ -28,8 +28,8 @@ public class CriticalBoundsInputDto {
         }
     }
 
-    public static CriticalBoundsInputDto defaultCriticalBoundsInputSettings() {
-        return new CriticalBoundsInputDto(20d, 100d, 100);
+    public static CriticalBoundsTranslationDto defaultCriticalBoundsInputSettings() {
+        return new CriticalBoundsTranslationDto(20d, 100d, 100);
     }
 
     public Double minimum() {

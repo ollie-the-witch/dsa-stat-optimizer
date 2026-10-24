@@ -1,6 +1,6 @@
 package org.olivia.test.project.ui.inputs;
 
-import org.olivia.test.project.ui.inputs.dto.CharacterStatInputUiData;
+import org.olivia.test.project.ui.inputs.dto.CharacterStatInputUiDto;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,10 +10,10 @@ import java.util.List;
 final class SourceRowsPanel extends JPanel {
     private final List<SourceRowFields> rows = new ArrayList<>();
     private final JPanel rowsContainer = new JPanel();
-    private final List<CharacterStatInputUiData.SourceRow> defaults;
+    private final List<CharacterStatInputUiDto.SourceRow> defaults;
 
     SourceRowsPanel(String title,
-            List<CharacterStatInputUiData.SourceRow> defaults) {
+            List<CharacterStatInputUiDto.SourceRow> defaults) {
         this.defaults = List.copyOf(defaults);
         setBorder(BorderFactory.createTitledBorder(title));
         setLayout(new BorderLayout(4, 4));
@@ -35,14 +35,14 @@ final class SourceRowsPanel extends JPanel {
         setAlignmentX(Component.LEFT_ALIGNMENT);
     }
 
-    List<CharacterStatInputUiData.SourceRow> readRows() {
-        return rows.stream().map(row -> new CharacterStatInputUiData.SourceRow(row.sourceField.getText(), row.percentField.getText())).toList();
+    List<CharacterStatInputUiDto.SourceRow> readRows() {
+        return rows.stream().map(row -> new CharacterStatInputUiDto.SourceRow(row.sourceField.getText(), row.percentField.getText())).toList();
     }
 
     private void resetRows() {
         rows.clear();
         rowsContainer.removeAll();
-        for (CharacterStatInputUiData.SourceRow row : defaults) {
+        for (CharacterStatInputUiDto.SourceRow row : defaults) {
             addRow(row.source(), row.percent());
         }
         refreshRows();

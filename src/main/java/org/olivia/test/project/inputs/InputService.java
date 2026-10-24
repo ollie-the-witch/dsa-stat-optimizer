@@ -1,14 +1,14 @@
 package org.olivia.test.project.inputs;
 
 import org.codehaus.plexus.util.StringUtils;
-import org.olivia.test.project.inputs.dto.CharacterStatInputDto;
-import org.olivia.test.project.inputs.dto.CriticalBoundsInputDto;
-import org.olivia.test.project.inputs.dto.SolverSettingsInputDto;
-import org.olivia.test.project.inputs.dto.UptimeAssumptionsInputDto;
-import org.olivia.test.project.ui.inputs.dto.CharacterStatInputUiData;
+import org.olivia.test.project.inputs.dto.CharacterStatTranslationDto;
+import org.olivia.test.project.inputs.dto.CriticalBoundsTranslationDto;
+import org.olivia.test.project.inputs.dto.SolverSettingsTranslationDto;
+import org.olivia.test.project.inputs.dto.UptimeTranslationDto;
+import org.olivia.test.project.ui.inputs.dto.CharacterStatInputUiDto;
 import org.olivia.test.project.ui.inputs.dto.CriticalBoundsInputUiDto;
 import org.olivia.test.project.ui.inputs.dto.SolverSettingsInputUiDto;
-import org.olivia.test.project.ui.inputs.dto.UptimeAssumptionsInputUiData;
+import org.olivia.test.project.ui.inputs.dto.UptimeAssumptionsInputUiDto;
 
 import java.util.List;
 import java.util.stream.IntStream;
@@ -16,14 +16,14 @@ import java.util.stream.IntStream;
 public class InputService {
 
     private static <T> List<T> readSourceRows(String label,
-            List<CharacterStatInputUiData.SourceRow> rows,
+            List<CharacterStatInputUiDto.SourceRow> rows,
             SourceFactory<T> factory) {
         if (rows == null) {
             throw new IllegalArgumentException(label + " sources are required; use an empty list for no sources.");
         }
 
         return IntStream.range(0, rows.size()).mapToObj(index -> {
-            CharacterStatInputUiData.SourceRow row = rows.get(index);
+            CharacterStatInputUiDto.SourceRow row = rows.get(index);
             String rowLabel = label + " source row " + (index + 1);
             if (row == null) {
                 throw new IllegalArgumentException(rowLabel + " is missing.");
@@ -73,7 +73,7 @@ public class InputService {
         return new Inputs();
     }
 
-    public CharacterStatInputDto readCharacterStatInputDto(CharacterStatInputUiData uiData,
+    public CharacterStatTranslationDto readCharacterStatInputDto(CharacterStatInputUiDto uiData,
             Inputs inputs) {
         if (uiData == null) {
             throw new IllegalArgumentException("Character stat form data is required.");
@@ -88,23 +88,23 @@ public class InputService {
         double physicalAdditionalDamageBonus = parseNonNegativeDouble("Physical additional damage bonus", uiData.physicalAdditionalDamageBonus());
         double elementalAdditionalDamageBonus = parseNonNegativeDouble("Elemental additional damage bonus", uiData.elementalAdditionalDamageBonus());
 
-        List<CharacterStatInputDto.AttackPowerUpSources> attackPowerUpSources = readSourceRows("Attack power-up",
+        List<CharacterStatTranslationDto.AttackPowerUpSources> attackPowerUpSources = readSourceRows("Attack power-up",
                 uiData.attackPowerUpSources(),
-                CharacterStatInputDto.AttackPowerUpSources::new);
-        List<CharacterStatInputDto.StatusAttackPowerUpSources> statusAttackPowerUpSources = readSourceRows("Status attack power-up",
+                CharacterStatTranslationDto.AttackPowerUpSources::new);
+        List<CharacterStatTranslationDto.StatusAttackPowerUpSources> statusAttackPowerUpSources = readSourceRows("Status attack power-up",
                 uiData.statusAttackPowerUpSources(),
-                CharacterStatInputDto.StatusAttackPowerUpSources::new);
-        List<CharacterStatInputDto.CriticalRateSources> criticalRateSources = readSourceRows("Critical rate",
+                CharacterStatTranslationDto.StatusAttackPowerUpSources::new);
+        List<CharacterStatTranslationDto.CriticalRateSources> criticalRateSources = readSourceRows("Critical rate",
                 uiData.criticalRateSources(),
-                CharacterStatInputDto.CriticalRateSources::new);
-        List<CharacterStatInputDto.CriticalDamageSources> criticalDamageSources = readSourceRows("Critical damage",
+                CharacterStatTranslationDto.CriticalRateSources::new);
+        List<CharacterStatTranslationDto.CriticalDamageSources> criticalDamageSources = readSourceRows("Critical damage",
                 uiData.criticalDamageSources(),
-                CharacterStatInputDto.CriticalDamageSources::new);
+                CharacterStatTranslationDto.CriticalDamageSources::new);
 
-        CharacterStatInputDto result = new CharacterStatInputDto(characterSheetAttack,
+        CharacterStatTranslationDto result = new CharacterStatTranslationDto(characterSheetAttack,
                 attackPowerUpSources,
-                new CharacterStatInputDto.StatusAttackPower(physicalAdditionalAttackPower, elementalAdditionalAttackPower, statusAttackPowerUpSources),
-                new CharacterStatInputDto.StatusAdditionalDamageBonus(physicalAdditionalDamageBonus, elementalAdditionalDamageBonus),
+                new CharacterStatTranslationDto.StatusAttackPower(physicalAdditionalAttackPower, elementalAdditionalAttackPower, statusAttackPowerUpSources),
+                new CharacterStatTranslationDto.StatusAdditionalDamageBonus(physicalAdditionalDamageBonus, elementalAdditionalDamageBonus),
                 criticalRateSources,
                 criticalDamageSources);
 
@@ -112,7 +112,7 @@ public class InputService {
         return result;
     }
 
-    public UptimeAssumptionsInputDto readUptimeAssumptionsInputDto(UptimeAssumptionsInputUiData uiData,
+    public UptimeTranslationDto readUptimeAssumptionsInputDto(UptimeAssumptionsInputUiDto uiData,
             Inputs inputs) {
 
         if (uiData == null) {
@@ -125,7 +125,7 @@ public class InputService {
         double physicalStatusUptime = parseNonNegativeDouble("Physical status uptime", uiData.physicalStatusUptime());
         double elementalStatusUptime = parseNonNegativeDouble("Elemental status uptime", uiData.elementalStatusUptime());
 
-        UptimeAssumptionsInputDto result = new UptimeAssumptionsInputDto(physicalStatusUptime, elementalStatusUptime);
+        UptimeTranslationDto result = new UptimeTranslationDto(physicalStatusUptime, elementalStatusUptime);
 
         inputs.setUptimeAssumptionsInputDto(result);
         return inputs.getUptimeAssumptionsInputDto();
@@ -143,7 +143,7 @@ public class InputService {
 
     }
 
-    public CriticalBoundsInputDto readCriticalBoundsInputDto(CriticalBoundsInputUiDto uiData,
+    public CriticalBoundsTranslationDto readCriticalBoundsInputDto(CriticalBoundsInputUiDto uiData,
             Inputs inputs) {
 
         double minimum = parseNonNegativeDouble("Minimum Desired Critical Rate", uiData.minimum());
@@ -151,20 +151,20 @@ public class InputService {
         double cap = parseNonNegativeDouble("Hard Critical Rate Cap", uiData.cap());
 
 
-        CriticalBoundsInputDto result = new CriticalBoundsInputDto(minimum, maximum, cap);
+        CriticalBoundsTranslationDto result = new CriticalBoundsTranslationDto(minimum, maximum, cap);
 
         inputs.setCriticalBoundsInputDto(result);
         return inputs.getCriticalBoundsInputDto();
     }
 
-    public SolverSettingsInputDto readSolverSettingsInputDto(SolverSettingsInputUiDto uiData,
+    public SolverSettingsTranslationDto readSolverSettingsInputDto(SolverSettingsInputUiDto uiData,
             Inputs inputs) {
 
         int resultCount = parseNonNegativeInt("Number of Results to Return", uiData.resultCount());
         int timeLimit = parseNonNegativeInt("Optimizer Time Limit per Solution", uiData.timeLimit());
         int workerCount = parseNonNegativeInt("Number of Workers", uiData.workerCount());
 
-        SolverSettingsInputDto result = new SolverSettingsInputDto(resultCount, timeLimit, workerCount);
+        SolverSettingsTranslationDto result = new SolverSettingsTranslationDto(resultCount, timeLimit, workerCount);
         inputs.setSolverSettingsInputDto(result);
         return inputs.getSolverSettingsInputDto();
     }

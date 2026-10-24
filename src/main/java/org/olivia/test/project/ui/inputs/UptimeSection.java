@@ -1,7 +1,7 @@
 package org.olivia.test.project.ui.inputs;
 
-import org.olivia.test.project.inputs.dto.UptimeAssumptionsInputDto;
-import org.olivia.test.project.ui.inputs.dto.UptimeAssumptionsInputUiData;
+import org.olivia.test.project.inputs.dto.UptimeTranslationDto;
+import org.olivia.test.project.ui.inputs.dto.UptimeAssumptionsInputUiDto;
 
 import javax.swing.*;
 
@@ -9,7 +9,7 @@ final class UptimeSection extends JPanel {
     private final JTextField physicalStatusUptime;
     private final JTextField elementalStatusUptime;
 
-    UptimeSection(UptimeAssumptionsInputDto defaults) {
+    UptimeSection(UptimeTranslationDto defaults) {
         physicalStatusUptime = InputSectionSupport.textField(defaults.physicalStatusUptime());
         elementalStatusUptime = InputSectionSupport.textField(defaults.elementalStatusUptime());
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -18,7 +18,7 @@ final class UptimeSection extends JPanel {
                 InputSectionSupport.inputRow("Elemental Uptime (up to 100%)", elementalStatusUptime, defaults.elementalStatusUptime())));
     }
 
-    UptimeAssumptionsInputUiData readUiData() {
-        return new UptimeAssumptionsInputUiData(physicalStatusUptime.getText(), elementalStatusUptime.getText());
+    UptimeAssumptionsInputUiDto readUiData() {
+        return new UptimeAssumptionsInputUiDto(physicalStatusUptime.getText(), elementalStatusUptime.getText());
     }
 }

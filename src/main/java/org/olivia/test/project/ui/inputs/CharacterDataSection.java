@@ -1,7 +1,7 @@
 package org.olivia.test.project.ui.inputs;
 
-import org.olivia.test.project.inputs.dto.CharacterStatInputDto;
-import org.olivia.test.project.ui.inputs.dto.CharacterStatInputUiData;
+import org.olivia.test.project.inputs.dto.CharacterStatTranslationDto;
+import org.olivia.test.project.ui.inputs.dto.CharacterStatInputUiDto;
 
 import javax.swing.*;
 import java.util.List;
@@ -21,21 +21,21 @@ final class CharacterDataSection {
     private final JPanel criticalStatsSection;
     private final JPanel additionalDamageSection;
 
-    CharacterDataSection(CharacterStatInputDto defaults) {
+    CharacterDataSection(CharacterStatTranslationDto defaults) {
         characterSheetAttack = InputSectionSupport.textField(defaults.characterSheetAttack());
         physicalAdditionalAttack = InputSectionSupport.textField(defaults.statusAttackPower().physicalAdditionalAttackPower());
         elementalAdditionalAttack = InputSectionSupport.textField(defaults.statusAttackPower().elementalAdditionalAttackPower());
         physicalAdditionalDamageBonus = InputSectionSupport.textField(defaults.statusAdditionalDamageBonus().physicalAdditionalDamageBonus());
         elementalAdditionalDamageBonus = InputSectionSupport.textField(defaults.statusAdditionalDamageBonus().elementalAdditionalDamageBonus());
         attackPowerUpSources = sourceRows("Attack Power Up",
-                defaults.attackPowerUpSources().stream().map(source -> new CharacterStatInputUiData.SourceRow(source.source(), Double.toString(source.percent()))).toList());
+                defaults.attackPowerUpSources().stream().map(source -> new CharacterStatInputUiDto.SourceRow(source.source(), Double.toString(source.percent()))).toList());
         statusAttackPowerUpSources = sourceRows("Status Attack Power Up",
-                defaults.statusAttackPower().statusAttackPowerUpSources().stream().map(source -> new CharacterStatInputUiData.SourceRow(source.source(),
+                defaults.statusAttackPower().statusAttackPowerUpSources().stream().map(source -> new CharacterStatInputUiDto.SourceRow(source.source(),
                         Double.toString(source.percent()))).toList());
         criticalRateSources = sourceRows("Critical Rate Sources",
-                defaults.criticalRateSources().stream().map(source -> new CharacterStatInputUiData.SourceRow(source.source(), Double.toString(source.percent()))).toList());
+                defaults.criticalRateSources().stream().map(source -> new CharacterStatInputUiDto.SourceRow(source.source(), Double.toString(source.percent()))).toList());
         criticalDamageSources = sourceRows("Critical Damage Sources",
-                defaults.criticalDamageSources().stream().map(source -> new CharacterStatInputUiData.SourceRow(source.source(), Double.toString(source.percent()))).toList());
+                defaults.criticalDamageSources().stream().map(source -> new CharacterStatInputUiDto.SourceRow(source.source(), Double.toString(source.percent()))).toList());
 
         generalAttackSection = InputSectionSupport.createSection("General Attack",
                 InputSectionSupport.inputRow("Character-Sheet Attack", characterSheetAttack, defaults.characterSheetAttack()),
@@ -55,7 +55,7 @@ final class CharacterDataSection {
     }
 
     private static SourceRowsPanel sourceRows(String title,
-            List<CharacterStatInputUiData.SourceRow> defaults) {
+            List<CharacterStatInputUiDto.SourceRow> defaults) {
         return new SourceRowsPanel(title, defaults);
     }
 
@@ -75,8 +75,8 @@ final class CharacterDataSection {
         return additionalDamageSection;
     }
 
-    CharacterStatInputUiData readUiData() {
-        return new CharacterStatInputUiData(characterSheetAttack.getText(),
+    CharacterStatInputUiDto readUiData() {
+        return new CharacterStatInputUiDto(characterSheetAttack.getText(),
                 physicalAdditionalAttack.getText(),
                 elementalAdditionalAttack.getText(),
                 physicalAdditionalDamageBonus.getText(),

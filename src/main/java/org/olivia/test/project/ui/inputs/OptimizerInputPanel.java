@@ -1,10 +1,10 @@
 package org.olivia.test.project.ui.inputs;
 
 import org.olivia.test.project.inputs.Inputs;
-import org.olivia.test.project.ui.inputs.dto.CharacterStatInputUiData;
+import org.olivia.test.project.ui.inputs.dto.CharacterStatInputUiDto;
 import org.olivia.test.project.ui.inputs.dto.CriticalBoundsInputUiDto;
 import org.olivia.test.project.ui.inputs.dto.SolverSettingsInputUiDto;
-import org.olivia.test.project.ui.inputs.dto.UptimeAssumptionsInputUiData;
+import org.olivia.test.project.ui.inputs.dto.UptimeAssumptionsInputUiDto;
 
 import javax.swing.*;
 import java.awt.*;
@@ -50,7 +50,7 @@ public final class OptimizerInputPanel extends JPanel {
         return new FormData(characterData.readUiData(), uptime.readUiData(), criticalBounds.readUiData(), solverSettings.readUiData());
     }
 
-    public record FormData(CharacterStatInputUiData characterStats, UptimeAssumptionsInputUiData uptime, CriticalBoundsInputUiDto criticalBounds,
+    public record FormData(CharacterStatInputUiDto characterStats, UptimeAssumptionsInputUiDto uptime, CriticalBoundsInputUiDto criticalBounds,
                            SolverSettingsInputUiDto solverSettings) {
     }
 }

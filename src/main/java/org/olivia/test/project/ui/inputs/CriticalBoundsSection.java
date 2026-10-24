@@ -1,6 +1,6 @@
 package org.olivia.test.project.ui.inputs;
 
-import org.olivia.test.project.inputs.dto.CriticalBoundsInputDto;
+import org.olivia.test.project.inputs.dto.CriticalBoundsTranslationDto;
 import org.olivia.test.project.ui.inputs.dto.CriticalBoundsInputUiDto;
 
 import javax.swing.*;
@@ -10,7 +10,7 @@ final class CriticalBoundsSection extends JPanel {
     private final JTextField maximum;
     private final JTextField cap;
 
-    CriticalBoundsSection(CriticalBoundsInputDto defaults) {
+    CriticalBoundsSection(CriticalBoundsTranslationDto defaults) {
         minimum = InputSectionSupport.textField(defaults.minimum());
         maximum = InputSectionSupport.textField(defaults.maximum());
         cap = InputSectionSupport.textField(defaults.cap());
