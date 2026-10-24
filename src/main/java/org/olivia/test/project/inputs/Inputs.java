@@ -1,9 +1,9 @@
 package org.olivia.test.project.inputs;
 
-import org.olivia.test.project.inputs.dto.CharacterStatInputDto;
-import org.olivia.test.project.inputs.dto.CriticalBoundsInputDto;
-import org.olivia.test.project.inputs.dto.SolverSettingsInputDto;
-import org.olivia.test.project.inputs.dto.UptimeAssumptionsInputDto;
+import org.olivia.test.project.inputs.dto.CharacterStatTranslationDto;
+import org.olivia.test.project.inputs.dto.CriticalBoundsTranslationDto;
+import org.olivia.test.project.inputs.dto.SolverSettingsTranslationDto;
+import org.olivia.test.project.inputs.dto.UptimeTranslationDto;
 
 public class Inputs {
     /*
@@ -16,50 +16,50 @@ public class Inputs {
         - critical bounds
         - Solver settings,
          */
-    private CharacterStatInputDto characterStatInputDto;
-    private UptimeAssumptionsInputDto uptimeAssumptionsInputDto;
+    private CharacterStatTranslationDto characterStatTranslationDto;
+    private UptimeTranslationDto uptimeTranslationDto;
     // Armor Bonus
     // Stat Lock
     // Stat Increments
-    private CriticalBoundsInputDto criticalBoundsInputDto;
-    private SolverSettingsInputDto solverSettingsInputDto;
+    private CriticalBoundsTranslationDto criticalBoundsTranslationDto;
+    private SolverSettingsTranslationDto solverSettingsTranslationDto;
 
     Inputs() {
-        characterStatInputDto = CharacterStatInputDto.defaultCharacterStatInput();
-        uptimeAssumptionsInputDto = UptimeAssumptionsInputDto.defaultUptimeAssumptionsInputDto();
-        criticalBoundsInputDto = CriticalBoundsInputDto.defaultCriticalBoundsInputSettings();
-        solverSettingsInputDto = SolverSettingsInputDto.defaultSolverSettings();
+        characterStatTranslationDto = CharacterStatTranslationDto.defaultCharacterStatInput();
+        uptimeTranslationDto = UptimeTranslationDto.defaultUptimeAssumptionsInputDto();
+        criticalBoundsTranslationDto = CriticalBoundsTranslationDto.defaultCriticalBoundsInputSettings();
+        solverSettingsTranslationDto = SolverSettingsTranslationDto.defaultSolverSettings();
     }
 
-    public CharacterStatInputDto getCharacterStatInputDto() {
-        return characterStatInputDto;
+    public CharacterStatTranslationDto getCharacterStatInputDto() {
+        return characterStatTranslationDto;
     }
 
-    void setCharacterStatInputDto(CharacterStatInputDto characterStatInputDto) {
-        this.characterStatInputDto = characterStatInputDto;
+    void setCharacterStatInputDto(CharacterStatTranslationDto characterStatTranslationDto) {
+        this.characterStatTranslationDto = characterStatTranslationDto;
     }
 
-    public UptimeAssumptionsInputDto getUptimeAssumptionsInputDto() {
-        return uptimeAssumptionsInputDto;
+    public UptimeTranslationDto getUptimeAssumptionsInputDto() {
+        return uptimeTranslationDto;
     }
 
-    void setUptimeAssumptionsInputDto(UptimeAssumptionsInputDto uptimeAssumptionsInputDto) {
-        this.uptimeAssumptionsInputDto = uptimeAssumptionsInputDto;
+    void setUptimeAssumptionsInputDto(UptimeTranslationDto uptimeTranslationDto) {
+        this.uptimeTranslationDto = uptimeTranslationDto;
     }
 
-    public CriticalBoundsInputDto getCriticalBoundsInputDto() {
-        return criticalBoundsInputDto;
+    public CriticalBoundsTranslationDto getCriticalBoundsInputDto() {
+        return criticalBoundsTranslationDto;
     }
 
-    void setCriticalBoundsInputDto(CriticalBoundsInputDto criticalBoundsInputDto) {
-        this.criticalBoundsInputDto = criticalBoundsInputDto;
+    void setCriticalBoundsInputDto(CriticalBoundsTranslationDto criticalBoundsTranslationDto) {
+        this.criticalBoundsTranslationDto = criticalBoundsTranslationDto;
     }
 
-    public SolverSettingsInputDto getSolverSettingsInputDto() {
-        return solverSettingsInputDto;
+    public SolverSettingsTranslationDto getSolverSettingsInputDto() {
+        return solverSettingsTranslationDto;
     }
 
-    void setSolverSettingsInputDto(SolverSettingsInputDto solverSettingsInputDto) {
-        this.solverSettingsInputDto = solverSettingsInputDto;
+    void setSolverSettingsInputDto(SolverSettingsTranslationDto solverSettingsTranslationDto) {
+        this.solverSettingsTranslationDto = solverSettingsTranslationDto;
     }
 }

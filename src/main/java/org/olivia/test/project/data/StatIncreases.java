@@ -19,7 +19,7 @@ public record StatIncreases(Map<StatVariable, int[]> mainStats, Map<StatVariable
         sub.put(StatVariable.CRITICAL_DAMAGE, new int[]{250, 357, 321, 250, 250});
         sub.put(StatVariable.PHYSICAL_ATTACK, new int[]{175, 250, 225, 175, 175});
         sub.put(StatVariable.ELEMENTAL_ATTACK, new int[]{87, 125, 112, 87, 87});
-        sub.put(StatVariable.STATUS_ATTACK_POWER_UP, new int[]{388, 555, 500, 388, 388});
+        //sub.put(StatVariable.STATUS_ATTACK_POWER_UP, new int[]{388, 555, 500, 388, 388});
 
         Map<StatVariable, Integer> rune = new HashMap<>();
         rune.put(StatVariable.ATTACK, 140);

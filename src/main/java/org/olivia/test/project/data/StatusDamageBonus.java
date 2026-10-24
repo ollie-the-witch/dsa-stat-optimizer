@@ -1,6 +1,6 @@
 package org.olivia.test.project.data;
 
-import org.olivia.test.project.inputs.dto.CharacterStatInputDto;
+import org.olivia.test.project.inputs.dto.CharacterStatTranslationDto;
 
 /**
  * Record for passing information about damage uptime
@@ -9,7 +9,7 @@ import org.olivia.test.project.inputs.dto.CharacterStatInputDto;
  * @param elementalStatusUptime
  */
 public record StatusDamageBonus(double physicalStatusUptime, double elementalStatusUptime) {
-    public static StatusDamageBonus damageBonusParameter(CharacterStatInputDto.StatusAdditionalDamageBonus statusAdditionalDamageBonus) {
+    public static StatusDamageBonus damageBonusParameter(CharacterStatTranslationDto.StatusAdditionalDamageBonus statusAdditionalDamageBonus) {
         return new StatusDamageBonus(statusAdditionalDamageBonus.physicalAdditionalDamageBonus(), statusAdditionalDamageBonus.elementalAdditionalDamageBonus());
     }
 
