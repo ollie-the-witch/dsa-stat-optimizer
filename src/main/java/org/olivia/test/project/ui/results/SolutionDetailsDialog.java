@@ -1,4 +1,4 @@
-package org.olivia.test.project.ui;
+package org.olivia.test.project.ui.results;
 
 import org.olivia.test.project.data.config.OptimizationConfigurations;
 import org.olivia.test.project.data.enumerations.EquipmentSlots;

@@ -1,4 +1,4 @@
-package org.olivia.test.project.ui;
+package org.olivia.test.project.ui.inputs;
 
 import org.olivia.test.project.inputs.ui.CharacterStatInputUiData;
 
