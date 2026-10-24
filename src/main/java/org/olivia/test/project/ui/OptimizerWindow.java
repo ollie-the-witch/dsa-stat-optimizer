@@ -250,14 +250,14 @@ public class OptimizerWindow extends JFrame {
 
         private static JPanel createGeneralAttackSection(CharacterDataForm fields,
                 CharacterStatInputDto defaults) {
-            return createSection("General Attack", inputRow("Character-sheet attack", fields.attack(), defaults.characterSheetAttack()), fields.attackPowerUpSources());
+            return createSection("General Attack", inputRow("Character-Sheet Attack", fields.attack(), defaults.characterSheetAttack()), fields.attackPowerUpSources());
         }
 
         private static JPanel createStatusAttackSection(CharacterDataForm fields,
                 CharacterStatInputDto defaults) {
             return createSection("Status Attack",
-                    inputRow("Physical additional attack", fields.physicalAttack(), defaults.statusAttackPower().physicalAdditionalAttackPower()),
-                    inputRow("Elemental additional attack", fields.elementalAttack(), defaults.statusAttackPower().elementalAdditionalAttackPower()),
+                    inputRow("Physical Additional Attack", fields.physicalAttack(), defaults.statusAttackPower().physicalAdditionalAttackPower()),
+                    inputRow("Elemental Additional Attack", fields.elementalAttack(), defaults.statusAttackPower().elementalAdditionalAttackPower()),
                     fields.statusAttackPowerUpSources());
         }
 
@@ -268,10 +268,10 @@ public class OptimizerWindow extends JFrame {
         private static JPanel createAdditionalDamageSection(CharacterDataForm fields,
                 CharacterStatInputDto defaults) {
             return createSection("Additional Damage Bonus",
-                    inputRow("Physical additional damage bonus (%)",
+                    inputRow("Physical Additional Damage Bonus (%)",
                             fields.physicalAdditionalDamageBonus(),
                             defaults.statusAdditionalDamageBonus().physicalAdditionalDamageBonus()),
-                    inputRow("Elemental additional damage bonus (%)",
+                    inputRow("Elemental Additional Damage Bonus (%)",
                             fields.elementalAdditionalDamageBonus(),
                             defaults.statusAdditionalDamageBonus().elementalAdditionalDamageBonus()));
         }
@@ -302,9 +302,9 @@ public class OptimizerWindow extends JFrame {
     private static class UptimeDataUiSection {
         private static JPanel createSection(UptimeDataForm fields,
                 UptimeAssumptionsInputDto defaults) {
-            return OptimizerWindow.createSection("Uptime",
-                    inputRow("Physical status uptime (%)", fields.physicalStatusUptime(), defaults.physicalStatusUptime()),
-                    inputRow("Elemental status uptime (%)", fields.elementalStatusUptime(), defaults.elementalStatusUptime()));
+            return OptimizerWindow.createSection("Estimated Status Uptime",
+                    inputRow("Physical Uptime (up to 100%)", fields.physicalStatusUptime(), defaults.physicalStatusUptime()),
+                    inputRow("Elemental Uptime (up to 100%)", fields.elementalStatusUptime(), defaults.elementalStatusUptime()));
         }
 
         private static UptimeAssumptionsInputUiData readUptimeDataUiData(UptimeDataForm form) {
@@ -316,8 +316,8 @@ public class OptimizerWindow extends JFrame {
         private static JPanel createSection(CriticalBoundsForm fields,
                 CriticalBoundsInputDto defaults) {
             return OptimizerWindow.createSection("Critical Bounds",
-                    inputRow("Minimum (%)", fields.minimum(), defaults.minimum()),
-                    inputRow("Maximum (%)", fields.maximum(), defaults.maximum()),
+                    inputRow("Preferred Minimum (%)", fields.minimum(), defaults.minimum()),
+                    inputRow("Preferred Maximum (%)", fields.maximum(), defaults.maximum()),
                     inputRow("Hard cap", fields.cap(), defaults.cap()));
         }
 

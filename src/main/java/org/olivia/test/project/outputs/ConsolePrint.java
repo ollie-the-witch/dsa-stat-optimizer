@@ -102,24 +102,24 @@ public class ConsolePrint {
 
         StatusUptimeParameters noUptime = new StatusUptimeParameters(0, 0);
         DamageCalculator.DamageCalculatorPacket noUptimePacket = new DamageCalculator.DamageCalculatorPacket(result.finalStats(), userInput, noUptime, statusDamageBonus);
-        System.out.printf("%-50s: %.3f\n", formatDamageString("No Uptime Factored", statusUptimeParameters), damageCalculator.calculateDamage(noUptimePacket));
+        System.out.printf("%-50s: %.3f\n", formatDamageString("No Uptime Factored", noUptime), damageCalculator.calculateDamage(noUptimePacket));
 
         StatusUptimeParameters physicalUptime = new StatusUptimeParameters(100, 0);
         DamageCalculator.DamageCalculatorPacket physicalUptimePacket = new DamageCalculator.DamageCalculatorPacket(result.finalStats(),
                 userInput,
                 physicalUptime,
                 statusDamageBonus);
-        System.out.printf("%-50s: %.3f\n", formatDamageString("Physical Uptime Only", statusUptimeParameters), damageCalculator.calculateDamage(physicalUptimePacket));
+        System.out.printf("%-50s: %.3f\n", formatDamageString("Physical Uptime Only", physicalUptime), damageCalculator.calculateDamage(physicalUptimePacket));
 
         StatusUptimeParameters elementalUptime = new StatusUptimeParameters(0, 100);
         DamageCalculator.DamageCalculatorPacket elementalUptimePacket = new DamageCalculator.DamageCalculatorPacket(result.finalStats(),
                 userInput,
                 elementalUptime,
                 statusDamageBonus);
-        System.out.printf("%-50s: %.3f\n", formatDamageString("Elemental Uptime Only", statusUptimeParameters), damageCalculator.calculateDamage(elementalUptimePacket));
+        System.out.printf("%-50s: %.3f\n", formatDamageString("Elemental Uptime Only", elementalUptime), damageCalculator.calculateDamage(elementalUptimePacket));
 
         StatusUptimeParameters fullUptime = new StatusUptimeParameters(100, 100);
         DamageCalculator.DamageCalculatorPacket fullTimePacket = new DamageCalculator.DamageCalculatorPacket(result.finalStats(), userInput, fullUptime, statusDamageBonus);
-        System.out.printf("%-50s: %.3f\n", formatDamageString("Full Uptime Factored", statusUptimeParameters), damageCalculator.calculateDamage(fullTimePacket));
+        System.out.printf("%-50s: %.3f\n", formatDamageString("Full Uptime Factored", fullUptime), damageCalculator.calculateDamage(fullTimePacket));
     }
 }
