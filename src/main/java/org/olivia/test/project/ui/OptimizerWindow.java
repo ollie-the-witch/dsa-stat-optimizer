@@ -14,6 +14,20 @@ public class OptimizerWindow extends JFrame {
     private final JButton optimizeButton = new JButton("Optimize");
     private final JLabel statusLabel = new JLabel(" ");
 
+    public OptimizerWindow() {
+        super("Upgrade Optimizer");
+        Inputs defaultInputs = OptimizerBackendOrchestrator.loadDefaultInput();
+
+        OptimizerInputPanel inputPanel = new OptimizerInputPanel(defaultInputs);
+        ResultsPanel resultsPanel = new ResultsPanel(this);
+
+        JSplitPane mainSplitPane = createWindowContent(inputPanel, resultsPanel);
+        configureWindow(mainSplitPane);
+
+        InOutController controller = new InOutController(this, defaultInputs, inputPanel, resultsPanel);
+        optimizeButton.addActionListener(event -> controller.handleOptimize());
+    }
+
     public JButton optimizeButton() {
         return optimizeButton;
     }
@@ -22,22 +36,8 @@ public class OptimizerWindow extends JFrame {
         return statusLabel;
     }
 
-    public OptimizerWindow() {
-        super("Upgrade Optimizer");
-        Inputs defaultInputs = OptimizerBackendOrchestrator.loadDefaultInput();
-
-        OptimizerInputPanel inputPanel = new OptimizerInputPanel(defaultInputs);
-        ResultsPanel resultsPanel = new ResultsPanel(this);
-
-        JSplitPane mainSplitPane = createWindowContent(inputPanel,resultsPanel);
-        configureWindow(mainSplitPane);
-
-        InOutController controller = new InOutController(this, defaultInputs, inputPanel, resultsPanel);
-        optimizeButton.addActionListener(event -> controller.handleOptimize());
-    }
-
-
-    private JSplitPane createWindowContent(OptimizerInputPanel inputsPanel, ResultsPanel resultsPanel) {
+    private JSplitPane createWindowContent(OptimizerInputPanel inputsPanel,
+            ResultsPanel resultsPanel) {
         JPanel footer = new JPanel(new BorderLayout(8, 8));
         footer.setBorder(BorderFactory.createEmptyBorder(8, 12, 12, 12));
         footer.add(statusLabel, BorderLayout.CENTER);

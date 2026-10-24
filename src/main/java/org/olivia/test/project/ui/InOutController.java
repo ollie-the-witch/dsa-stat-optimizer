@@ -21,7 +21,7 @@ public class InOutController {
 
     private final OptimizerInputPanel inputPanel;
     private final ResultsPanel resultsPanel;
-    
+
     private final JButton optimizeButton;
     private final JLabel statusLabel;
 
@@ -95,13 +95,15 @@ public class InOutController {
         }
     }
 
-    private boolean readInput(InputService inputService, OptimizerInputPanel inputPanel, Inputs defaultInputs) {
+    private boolean readInput(InputService inputService,
+            OptimizerInputPanel inputPanel,
+            Inputs defaultInputs) {
         try {
-        OptimizerInputPanel.FormData formData = inputPanel.readUiData();
-        inputService.readCharacterStatInputDto(formData.characterStats(), defaultInputs);
-        inputService.readUptimeAssumptionsInputDto(formData.uptime(), defaultInputs);
-        inputService.readCriticalBoundsInputDto(formData.criticalBounds(), defaultInputs);
-        inputService.readSolverSettingsInputDto(formData.solverSettings(), defaultInputs);
+            OptimizerInputPanel.FormData formData = inputPanel.readUiData();
+            inputService.readCharacterStatInputDto(formData.characterStats(), defaultInputs);
+            inputService.readUptimeAssumptionsInputDto(formData.uptime(), defaultInputs);
+            inputService.readCriticalBoundsInputDto(formData.criticalBounds(), defaultInputs);
+            inputService.readSolverSettingsInputDto(formData.solverSettings(), defaultInputs);
         } catch (Exception exception) {
             showInputError(exception.getMessage());
             return false;

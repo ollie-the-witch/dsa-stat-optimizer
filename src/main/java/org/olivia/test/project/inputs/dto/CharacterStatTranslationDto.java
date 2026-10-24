@@ -18,7 +18,8 @@ public record CharacterStatTranslationDto(int characterSheetAttack, List<AttackP
         List<CharacterStatTranslationDto.CriticalDamageSources> criticalDamageSourcesList = List.of(new CharacterStatTranslationDto.CriticalDamageSources("character sheet", 82.3));
 
         CharacterStatTranslationDto.StatusAdditionalDamageBonus statusAdditionalDamageBonus = new CharacterStatTranslationDto.StatusAdditionalDamageBonus(15, 35);
-        List<CharacterStatTranslationDto.StatusAttackPowerUpSources> statusAttackPowerUpSourcesList = List.of(new CharacterStatTranslationDto.StatusAttackPowerUpSources("base", 0.0));
+        List<CharacterStatTranslationDto.StatusAttackPowerUpSources> statusAttackPowerUpSourcesList = List.of(new CharacterStatTranslationDto.StatusAttackPowerUpSources("base",
+                0.0));
         CharacterStatTranslationDto.StatusAttackPower statusAttackPower = new CharacterStatTranslationDto.StatusAttackPower(100, 425, statusAttackPowerUpSourcesList);
 
         return new CharacterStatTranslationDto(3757, attackPowerUpSourcesList, statusAttackPower, statusAdditionalDamageBonus, criticalRateSourcesList, criticalDamageSourcesList);
