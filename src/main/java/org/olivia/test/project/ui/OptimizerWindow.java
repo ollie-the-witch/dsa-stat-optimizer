@@ -1,8 +1,11 @@
 package org.olivia.test.project.ui;
 
+import com.formdev.flatlaf.FlatLaf;
+import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import org.olivia.test.project.inputs.Inputs;
 import org.olivia.test.project.orchestrator.OptimizerBackendOrchestrator;
 import org.olivia.test.project.ui.inputs.OptimizerInputPanel;
+import org.olivia.test.project.ui.menu.Menu;
 import org.olivia.test.project.ui.results.ResultsPanel;
 
 import javax.swing.*;
@@ -16,12 +19,15 @@ public class OptimizerWindow extends JFrame {
 
     public OptimizerWindow() {
         super("Upgrade Optimizer");
+        FlatMacDarkLaf.setup();
+        FlatLaf.updateUI();
         Inputs defaultInputs = OptimizerBackendOrchestrator.loadDefaultInput();
 
         OptimizerInputPanel inputPanel = new OptimizerInputPanel(defaultInputs);
         ResultsPanel resultsPanel = new ResultsPanel(this);
 
         JSplitPane mainSplitPane = createWindowContent(inputPanel, resultsPanel);
+        setContentPane(mainSplitPane);
         configureWindow(mainSplitPane);
 
         InOutController controller = new InOutController(this, defaultInputs, inputPanel, resultsPanel);
@@ -58,12 +64,13 @@ public class OptimizerWindow extends JFrame {
     }
 
     private void configureWindow(JSplitPane mainSplitPane) {
-        setContentPane(mainSplitPane);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        new Menu(this).createMenuBar();
         setMinimumSize(new Dimension(1050, 700));
-        pack();
         mainSplitPane.setDividerLocation(mainSplitPane.getTopComponent().getPreferredSize().height);
+        pack();
         setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
     }
 
 
